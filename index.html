@@ -733,34 +733,45 @@ let enAccent = 'en-GB';
 try { const s = localStorage.getItem('va_en_accent'); if (s === 'en-GB' || s === 'en-US') enAccent = s; } catch (e) {}
 
 let cachedVoices = [];
+let voicesReady = false;
 
 function refreshVoices() {
     if ('speechSynthesis' in window) {
         cachedVoices = window.speechSynthesis.getVoices();
+        if (cachedVoices.length) voicesReady = true;
     }
 }
 if ('speechSynthesis' in window) {
     window.speechSynthesis.onvoiceschanged = refreshVoices;
 }
+// Підстраховка: на випадок, якщо подія не прийшла, але голоси вже є
+setTimeout(refreshVoices, 500);
+setTimeout(refreshVoices, 2000);
 
 // Надійний вибір голосу з урахуванням акценту:
-// 1) точний збіг з пріоритетними регіонами 2) префікс регіону 3) будь-який голос мови
+// 1) точний збіг із запитуваним регіоном (en-US → саме en-US)
+// 2) префікс запитуваного регіону
+// 3) точний збіг з іншими регіонами цієї мови (fallback: en-GB замість en-US)
+// 4) префікс інших регіонів 5) будь-який голос цієї мови
 function pickVoice(langCode) {
     if (!cachedVoices.length) refreshVoices();
     const voices = cachedVoices;
     if (!voices || !voices.length) return null;
     const norm = s => (s || '').replace('_', '-').toLowerCase();
     const two = langCode.slice(0, 2).toLowerCase();
-    const regions = (ACCENTS[two] || [langCode]).map(norm);
-    for (const r of regions) {
-        const v = voices.find(x => norm(x.lang) === r);
-        if (v) return v;
+    const wanted = norm(langCode);
+    const others = (ACCENTS[two] || []).map(norm).filter(r => r !== wanted);
+    let v = voices.find(x => norm(x.lang) === wanted);
+    if (!v) v = voices.find(x => norm(x.lang).startsWith(wanted));
+    for (const r of others) {
+        if (v) break;
+        v = voices.find(x => norm(x.lang) === r);
     }
-    for (const r of regions) {
-        const v = voices.find(x => norm(x.lang).startsWith(r));
-        if (v) return v;
+    for (const r of others) {
+        if (v) break;
+        v = voices.find(x => norm(x.lang).startsWith(r));
     }
-    const v = voices.find(x => norm(x.lang).slice(0, 2) === two);
+    if (!v) v = voices.find(x => norm(x.lang).slice(0, 2) === two);
     return v || null;
 }
 
@@ -782,6 +793,32 @@ function speak(text) {
     } catch (e) { /* ignore */ }
 }
 refreshVoices();
+
+// Діагностика: які голоси доступні та який реально використовується
+function showVoices() {
+    refreshVoices();
+    const want = lang === 'en' ? enAccent : (VOICE_LANG[lang] || 'uk-UA');
+    const used = pickVoice(want);
+    let msg = '🎙️ Голоси в браузері:\n';
+    if (!cachedVoices.length) {
+        msg += '⚠️ Жодного голосу не знайдено! У Chrome/Edge голоси з\'являються після кліку по сторінці.';
+    } else {
+        const groups = {};
+        cachedVoices.forEach(v => {
+            const k = (v.lang || '?').slice(0, 2);
+            (groups[k] = groups[k] || []).push(v.name);
+        });
+        for (const k in groups) {
+            msg += k.toUpperCase() + ': ' + groups[k].join(', ') + '\n';
+        }
+        msg += '🎯 Потрібен: ' + want + '\n';
+        msg += used ? '✅ Використано: ' + used.name + ' (' + used.lang + ')' : '⚠️ Точного голосу немає — браузер озвучить своїм дефолтним.';
+        if (!used && lang === 'uk' && !groups['uk']) {
+            msg += '\n💡 Для українського голосу встанови мовний пакет Windows: Параметри → Час і мова → Мова → Українська. Або в Chrome: Налаштування → Мови → Українська (вмикає онлайн-голоси).';
+        }
+    }
+    say(msg, 'voices');
+}
 
 // Кнопка вкл/викл озвучки 🔊/🔇
 function toggleVoice() {
@@ -1211,6 +1248,7 @@ function runChip(cmd) {
         case 'coin': flipCoin(); break;
         case 'quote': askQuote(); break;
         case 'timer': askTimer(); break;
+        case 'voices': showVoices(); break;
         case 'help': showHelp(); break;
     }
 }
@@ -1487,6 +1525,11 @@ function handleVoiceCommand(text) {
     // Хто ти / що вмієш
     if (/(хто ти|що ти вмієш|что ты умеешь|who are you|what can you do|qui es-tu|que sais-tu|mit tudsz|kicsoda vagy|кто ты)/iu.test(text)) {
         whoAmI();
+        return;
+    }
+    // Голоси / діагностика озвучки
+    if (/(які голоси|какие голоса|голоса|voices|list of voices|quelles voix|milyen hangok)/iu.test(text)) {
+        showVoices();
         return;
     }
     // Настрій
