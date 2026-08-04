@@ -221,6 +221,7 @@ body::after{
             <button data-lang="hu">🇭🇺 HU</button>
             <button data-lang="fr">🇫🇷 FR</button>
             <button class="voice-toggle" id="voiceBtn" onclick="toggleVoice()" title="Озвучка">🔊</button>
+            <button class="voice-toggle" id="accentBtn" onclick="cycleAccent()" style="display:none" title="Акцент">🇬🇧 UK</button>
         </div>
     </div>
 
@@ -701,6 +702,7 @@ function setLang(l, announce) {
     $('cmdInput').placeholder = t('placeHolder');
     const vb = $('voiceBtn');
     if (vb) vb.textContent = voiceEnabled ? '🔊' : '🔇';
+    updateAccentBtn();
     renderReminders();
     renderNotes();
     if (announce && voiceEnabled) speak(t('hello'));
@@ -714,8 +716,21 @@ document.getElementById('langSwitch').addEventListener('click', e => {
 // ============================================================
 // ОЗВУЧЕННЯ
 // ============================================================
-const VOICE_LANG = { uk: 'uk-UA', ru: 'ru-RU', en: 'en-US', hu: 'hu-HU', fr: 'fr-FR' };
+const VOICE_LANG = { uk: 'uk-UA', ru: 'ru-RU', en: 'en-GB', hu: 'hu-HU', fr: 'fr-FR' };
 const REC_LANG = { uk: 'uk-UA', ru: 'ru-RU', en: 'en-US', hu: 'hu-HU', fr: 'fr-FR' };
+
+// Акценти за мовою (пріоритет зверху) — щоб кожна мова звучала зі своїм акцентом
+const ACCENTS = {
+    uk: ['uk-UA'],
+    ru: ['ru-RU'],
+    en: ['en-GB', 'en-US', 'en-AU', 'en-CA', 'en-IE', 'en-IN'],
+    hu: ['hu-HU'],
+    fr: ['fr-FR', 'fr-CA', 'fr-BE', 'fr-CH'],
+};
+
+// Вибір акценту для англійської (зберігається)
+let enAccent = 'en-GB';
+try { const s = localStorage.getItem('va_en_accent'); if (s === 'en-GB' || s === 'en-US') enAccent = s; } catch (e) {}
 
 let cachedVoices = [];
 
@@ -728,17 +743,24 @@ if ('speechSynthesis' in window) {
     window.speechSynthesis.onvoiceschanged = refreshVoices;
 }
 
-// Надійний вибір голосу за кодом мови:
-// 1) точний збіг (en-US) 2) збіг за 2 літерами (en) 3) будь-який голос з тими 2 літерами
+// Надійний вибір голосу з урахуванням акценту:
+// 1) точний збіг з пріоритетними регіонами 2) префікс регіону 3) будь-який голос мови
 function pickVoice(langCode) {
     if (!cachedVoices.length) refreshVoices();
     const voices = cachedVoices;
     if (!voices || !voices.length) return null;
     const norm = s => (s || '').replace('_', '-').toLowerCase();
-    const code = norm(langCode);
-    let v = voices.find(x => norm(x.lang) === code);
-    if (!v) v = voices.find(x => norm(x.lang).startsWith(code.slice(0, 2)));
-    if (!v) v = voices.find(x => norm(x.lang).slice(0, 2) === code.slice(0, 2));
+    const two = langCode.slice(0, 2).toLowerCase();
+    const regions = (ACCENTS[two] || [langCode]).map(norm);
+    for (const r of regions) {
+        const v = voices.find(x => norm(x.lang) === r);
+        if (v) return v;
+    }
+    for (const r of regions) {
+        const v = voices.find(x => norm(x.lang).startsWith(r));
+        if (v) return v;
+    }
+    const v = voices.find(x => norm(x.lang).slice(0, 2) === two);
     return v || null;
 }
 
@@ -747,9 +769,11 @@ function speak(text) {
     try {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
-        u.lang = VOICE_LANG[lang] || 'uk-UA';
+        // Для англійської використовуємо вибраний акцент (UK/US), для інших — їх регіон
+        const voiceLang = lang === 'en' ? enAccent : (VOICE_LANG[lang] || 'uk-UA');
+        u.lang = voiceLang;
         u.rate = 1.0;
-        const v = pickVoice(VOICE_LANG[lang]);
+        const v = pickVoice(voiceLang);
         if (v) u.voice = v;
         window.speechSynthesis.speak(u);
         const avatar = $('avatar');
@@ -771,6 +795,26 @@ try {
     const savedVoice = localStorage.getItem('va_voice');
     if (savedVoice === '0') voiceEnabled = false;
 } catch (e) {}
+
+// Кнопка акценту для англійської 🇬🇧 UK / 🇺🇸 US
+function cycleAccent() {
+    enAccent = enAccent === 'en-GB' ? 'en-US' : 'en-GB';
+    try { localStorage.setItem('va_en_accent', enAccent); } catch (e) {}
+    updateAccentBtn();
+    if (voiceEnabled && lang === 'en') speak('Hello! This is ' + (enAccent === 'en-GB' ? 'British' : 'American') + ' English.');
+}
+
+function updateAccentBtn() {
+    const btn = $('accentBtn');
+    if (!btn) return;
+    if (lang === 'en') {
+        btn.style.display = '';
+        btn.textContent = enAccent === 'en-GB' ? '🇬🇧 UK' : '🇺🇸 US';
+        btn.title = enAccent === 'en-GB' ? 'British accent' : 'American accent';
+    } else {
+        btn.style.display = 'none';
+    }
+}
 
 // ============================================================
 // ВІДПОВІДЬ АСИСТЕНТА
