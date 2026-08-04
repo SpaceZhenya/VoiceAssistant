@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Assistant — розумний помічник</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    background:linear-gradient(135deg,#e8f0fb 0%,#dce8f8 50%,#f0e8f8 100%);
+    min-height:100vh;display:flex;justify-content:center;padding:20px;
+    font-family:'Segoe UI',Arial,sans-serif;color:#2a3040;
+}
+#app{width:720px;max-width:98vw;display:flex;flex-direction:column;gap:14px;padding-bottom:30px}
+
+/* ===== Header ===== */
+.header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.header h1{font-size:22px;font-weight:600;display:flex;align-items:center;gap:8px}
+.header h1 .dot{width:10px;height:10px;border-radius:50%;background:#4caf50;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%{opacity:1}50%{opacity:0.35}100%{opacity:1}}
+.lang-switch{display:flex;gap:4px;flex-wrap:wrap}
+.lang-switch button{
+    padding:5px 10px;border:1px solid #c8d4e8;border-radius:6px;background:#fff;
+    cursor:pointer;font-size:12px;transition:0.15s;font-family:inherit;
+}
+.lang-switch button:hover{border-color:#7a9ad0}
+.lang-switch button.active{background:#3f6bb0;border-color:#3f6bb0;color:#fff}
+
+/* ===== Card ===== */
+.card{
+    background:#fff;border-radius:16px;padding:26px 28px;
+    box-shadow:0 4px 18px rgba(60,90,140,0.12);border:1px solid #e4ecf8;
+    animation:fadeIn 0.35s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== Assistant ===== */
+.assistant{display:flex;align-items:center;gap:18px;margin-bottom:18px}
+.avatar{
+    width:74px;height:74px;border-radius:50%;
+    background:linear-gradient(135deg,#3f6bb0,#7a5ab0);
+    display:flex;align-items:center;justify-content:center;
+    font-size:36px;color:#fff;flex-shrink:0;
+    box-shadow:0 4px 12px rgba(63,107,176,0.35);
+}
+.avatar.speaking{animation:speak 0.5s infinite alternate}
+@keyframes speak{from{transform:scale(1)}to{transform:scale(1.1)}}
+.assistant .info{flex:1}
+.assistant .info .name{font-size:18px;font-weight:600}
+.assistant .info .status{font-size:13px;color:#7a8aa0;margin-top:2px}
+.status .rec-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e5533c;margin-right:5px;animation:pulse 1s infinite}
+
+/* ===== Speech bubble ===== */
+.bubble{
+    background:#f2f6fc;border-radius:12px;padding:14px 16px;font-size:15px;
+    line-height:1.6;min-height:48px;border:1px solid #e4ecf8;margin-bottom:16px;
+    display:flex;align-items:center;gap:10px;
+}
+.bubble .mic-ico{font-size:20px}
+.bubble .placeholder{color:#9aa8c0}
+
+/* ===== Buttons ===== */
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button{
+    padding:11px 18px;border:none;border-radius:10px;font-size:14px;font-weight:500;
+    cursor:pointer;transition:0.15s;display:flex;align-items:center;gap:8px;font-family:inherit;
+}
+.actions button:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.12)}
+.actions button:active{transform:translateY(0)}
+.btn-weather{background:#3f8fb0;color:#fff}
+.btn-mic{background:#e5533c;color:#fff}
+.btn-mic.listening{background:#b33a28;animation:pulse 1.2s infinite}
+.btn-alarm{background:#7a9a3f;color:#fff}
+.btn-help{background:#8a7ab0;color:#fff}
+
+/* ===== Reminders ===== */
+.reminder-box{margin-top:16px;border-top:1px solid #e8eef8;padding-top:16px;display:none}
+.reminder-box.show{display:block;animation:fadeIn 0.3s}
+.reminder-box h3{font-size:15px;margin-bottom:10px;color:#4a5a70}
+.reminder-add{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.reminder-add input{
+    padding:9px 12px;border:1px solid #d4deec;border-radius:8px;font-size:14px;flex:1;min-width:120px;
+    font-family:inherit;outline:none;
+}
+.reminder-add input:focus{border-color:#7a9ad0}
+.reminder-add .time{max-width:110px;text-align:center}
+.reminder-add button{
+    padding:9px 16px;background:#7a9a3f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-family:inherit;
+}
+.reminder-list{display:flex;flex-direction:column;gap:6px}
+.reminder-item{
+    display:flex;align-items:center;gap:10px;padding:9px 12px;background:#f6f9f0;
+    border:1px solid #e4ecd8;border-radius:8px;font-size:14px;
+}
+.reminder-item .r-time{font-weight:600;color:#5a7a2a;min-width:52px}
+.reminder-item .r-text{flex:1;color:#3a4a30}
+.reminder-item .r-del{
+    background:none;border:none;cursor:pointer;font-size:16px;color:#c07a6a;padding:2px 6px;
+}
+.reminder-item .r-del:hover{color:#e5533c}
+.reminder-item.fired{opacity:0.5;text-decoration:line-through}
+.empty-rem{font-size:13px;color:#9aa8c0;text-align:center;padding:10px 0}
+
+/* ===== Log ===== */
+.log-box{margin-top:16px}
+.log-box h3{font-size:15px;margin-bottom:8px;color:#4a5a70}
+.log{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
+.log .entry{font-size:13px;color:#5a6a80;background:#f8fafd;border-radius:6px;padding:7px 12px;border:1px solid #eef2f8}
+.log .entry b{color:#3f6bb0}
+</style>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <h1>🤖 <span id="titleText">Voice Assistant</span> <span class="dot"></span></h1>
+        <div class="lang-switch" id="langSwitch">
+            <button data-lang="uk" class="active">🇺🇦 UA</button>
+            <button data-lang="ru">🇷🇺 RU</button>
+            <button data-lang="en">🇬🇧 EN</button>
+            <button data-lang="hu">🇭🇺 HU</button>
+            <button data-lang="fr">🇫🇷 FR</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="assistant">
+            <div class="avatar" id="avatar">🤖</div>
+            <div class="info">
+                <div class="name" id="assistantName">Асистент</div>
+                <div class="status" id="assistantStatus">Готовий допомогти</div>
+            </div>
+        </div>
+
+        <div class="bubble">
+            <span class="mic-ico" id="bubbleIco">💬</span>
+            <span id="bubbleText" class="placeholder">Скажи «погода» або натисни кнопку нижче…</span>
+        </div>
+
+        <div class="actions">
+            <button class="btn-weather" onclick="askWeather()">🌤️ <span data-i18n="btnWeather">Погода</span></button>
+            <button class="btn-mic" id="micBtn" onclick="toggleMic()">🎤 <span data-i18n="btnVoice">Голос</span></button>
+            <button class="btn-alarm" onclick="toggleReminders()">⏰ <span data-i18n="btnAlarm">Нагадування</span></button>
+            <button class="btn-help" onclick="showHelp()">❓ <span data-i18n="btnHelp">Допомога</span></button>
+        </div>
+
+        <div class="reminder-box" id="reminderBox">
+            <h3>⏰ <span data-i18n="remTitle">Мої нагадування</span></h3>
+            <div class="reminder-add">
+                <input type="time" id="remTime" class="time" value="12:00">
+                <input type="text" id="remText" placeholder="Наприклад: подзвонити мамі" maxlength="60">
+                <button onclick="addReminder()">➕ <span data-i18n="remAdd">Додати</span></button>
+            </div>
+            <div class="reminder-list" id="reminderList"></div>
+        </div>
+
+        <div class="log-box">
+            <h3>📋 <span data-i18n="logTitle">Журнал</span></h3>
+            <div class="log" id="log"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// ПЕРЕКЛАДИ (5 мов)
+// ============================================================
+const I18N = {
+    uk: {
+        title: 'Voice Assistant', name: 'Асистент',
+        statusReady: 'Готовий допомогти', statusListening: 'Слухаю…', statusThinking: 'Думаю…',
+        bubbleDefault: 'Скажи «погода» або натисни кнопку нижче…',
+        btnWeather: 'Погода', btnVoice: 'Голос', btnAlarm: 'Нагадування', btnHelp: 'Допомога',
+        remTitle: 'Мої нагадування', remAdd: 'Додати', logTitle: 'Журнал',
+        remPlaceholder: 'Наприклад: подзвонити мамі',
+        weatherFetching: 'Шукаю твоє місцезнаходження…', weatherLocError: 'Не можу визначити місцезнаходження. Дозволь доступ до геолокації.',
+        weatherFail: 'Не вдалося отримати погоду. Перевір інтернет.',
+        weatherTemp: 'Зараз температура {temp}°C. {advice}',
+        adviceCold: 'Холодно — одягни теплу куртку!',
+        adviceCool: 'Прохолодно — візьми легку куртку.',
+        adviceWarm: 'Тепло — можна футболку.',
+        adviceHot: 'Дуже жарко — одягни щось легке, пий воду!',
+        timeNow: 'Зараз {time}.',
+        hello: 'Привіт! Чим можу допомогти?',
+        goodbye: 'До побачення!',
+        thanks: 'Будь ласка!',
+        helpText: 'Я вмію: розповісти погоду 🌤️, ставити нагадування ⏰, відповідати голосом 🎤. Скажи: «погода», «котра година» або «нагадай мені…».',
+        remAdded: 'Нагадування додано: {time} — {text}',
+        remEmpty: 'Нагадувань поки немає. Додай перше!',
+        remFired: '⏰ Нагадування: {text}',
+        remRemoved: 'Нагадування видалено.',
+        noReminder: 'Скажи, що нагадати, наприклад: «нагадай подзвонити мамі»',
+        unknownCmd: 'Не зрозумів команду. Скажи: «погода», «котра година», «нагадай…»',
+        micUnsupported: 'Голосове керування не підтримується в цьому браузері. Спробуй Chrome або Edge.',
+        errCatch: 'Сталася помилка, спробуй ще раз.',
+        logWeather: 'Запитано погоду', logReminder: 'Додано нагадування', logMic: 'Голосова команда', logTime: 'Запитано час',
+    },
+    ru: {
+        title: 'Voice Assistant', name: 'Ассистент',
+        statusReady: 'Готов помочь', statusListening: 'Слушаю…', statusThinking: 'Думаю…',
+        bubbleDefault: 'Скажи «погода» или нажми кнопку ниже…',
+        btnWeather: 'Погода', btnVoice: 'Голос', btnAlarm: 'Напоминания', btnHelp: 'Помощь',
+        remTitle: 'Мои напоминания', remAdd: 'Добавить', logTitle: 'Журнал',
+        remPlaceholder: 'Например: позвонить маме',
+        weatherFetching: 'Ищу твоё местоположение…', weatherLocError: 'Не могу определить местоположение. Разреши доступ к геолокации.',
+        weatherFail: 'Не удалось получить погоду. Проверь интернет.',
+        weatherTemp: 'Сейчас температура {temp}°C. {advice}',
+        adviceCold: 'Холодно — надень тёплую куртку!',
+        adviceCool: 'Прохладно — возьми лёгкую куртку.',
+        adviceWarm: 'Тепло — можно футболку.',
+        adviceHot: 'Очень жарко — надень что-то лёгкое, пей воду!',
+        timeNow: 'Сейчас {time}.',
+        hello: 'Привет! Чем могу помочь?',
+        goodbye: 'До свидания!',
+        thanks: 'Пожалуйста!',
+        helpText: 'Я умею: рассказывать погоду 🌤️, ставить напоминания ⏰, отвечать голосом 🎤. Скажи: «погода», «который час» или «напомни мне…».',
+        remAdded: 'Напоминание добавлено: {time} — {text}',
+        remEmpty: 'Напоминаний пока нет. Добавь первое!',
+        remFired: '⏰ Напоминание: {text}',
+        remRemoved: 'Напоминание удалено.',
+        noReminder: 'Скажи, что напомнить, например: «напомни позвонить маме»',
+        unknownCmd: 'Не понял команду. Скажи: «погода», «который час», «напомни…»',
+        micUnsupported: 'Голосовое управление не поддерживается в этом браузере. Попробуй Chrome или Edge.',
+        errCatch: 'Произошла ошибка, попробуй ещё раз.',
+        logWeather: 'Запрошена погода', logReminder: 'Добавлено напоминание', logMic: 'Голосовая команда', logTime: 'Запрошено время',
+    },
+    en: {
+        title: 'Voice Assistant', name: 'Assistant',
+        statusReady: 'Ready to help', statusListening: 'Listening…', statusThinking: 'Thinking…',
+        bubbleDefault: 'Say "weather" or press a button below…',
+        btnWeather: 'Weather', btnVoice: 'Voice', btnAlarm: 'Reminders', btnHelp: 'Help',
+        remTitle: 'My reminders', remAdd: 'Add', logTitle: 'Log',
+        remPlaceholder: 'e.g. call mom',
+        weatherFetching: 'Finding your location…', weatherLocError: 'Cannot find location. Allow geolocation access.',
+        weatherFail: 'Could not get weather. Check internet.',
+        weatherTemp: 'Current temperature is {temp}°C. {advice}',
+        adviceCold: 'Cold — wear a warm jacket!',
+        adviceCool: 'Cool — take a light jacket.',
+        adviceWarm: 'Warm — a T-shirt is fine.',
+        adviceHot: 'Very hot — wear something light, drink water!',
+        timeNow: 'It is {time} now.',
+        hello: 'Hello! How can I help?',
+        goodbye: 'Goodbye!',
+        thanks: 'You are welcome!',
+        helpText: 'I can tell weather 🌤️, set reminders ⏰, reply by voice 🎤. Say: "weather", "what time is it" or "remind me…".',
+        remAdded: 'Reminder set: {time} — {text}',
+        remEmpty: 'No reminders yet. Add your first!',
+        remFired: '⏰ Reminder: {text}',
+        remRemoved: 'Reminder deleted.',
+        noReminder: 'Say what to remind, e.g. "remind me to call mom"',
+        unknownCmd: 'Did not understand. Say: "weather", "what time", "remind…"',
+        micUnsupported: 'Voice control is not supported in this browser. Try Chrome or Edge.',
+        errCatch: 'Something went wrong, try again.',
+        logWeather: 'Weather requested', logReminder: 'Reminder added', logMic: 'Voice command', logTime: 'Time requested',
+    },
+    hu: {
+        title: 'Voice Assistant', name: 'Asszisztens',
+        statusReady: 'Készen állok', statusListening: 'Hallgatom…', statusThinking: 'Gondolkodom…',
+        bubbleDefault: 'Mondd, hogy "időjárás", vagy nyomj egy gombot lent…',
+        btnWeather: 'Időjárás', btnVoice: 'Hang', btnAlarm: 'Emlékeztetők', btnHelp: 'Segítség',
+        remTitle: 'Emlékeztetőim', remAdd: 'Hozzáad', logTitle: 'Napló',
+        remPlaceholder: 'pl. felhívni anyát',
+        weatherFetching: 'Keresem a helyzeted…', weatherLocError: 'Nem találom a helyzeted. Engedélyezd a helymeghatározást.',
+        weatherFail: 'Nem sikerült az időjárás lekérése. Ellenőrizd az internetet.',
+        weatherTemp: 'Jelenleg {temp}°C van. {advice}',
+        adviceCold: 'Hideg van — vegyél fel meleg kabátot!',
+        adviceCool: 'Hűvös van — vigyél könnyű kabátot.',
+        adviceWarm: 'Meleg van — póló is elég.',
+        adviceHot: 'Nagyon meleg van — vegyél fel könnyű ruhát, igyál vizet!',
+        timeNow: 'Most {time} van.',
+        hello: 'Szia! Miben segíthetek?',
+        goodbye: 'Viszlát!',
+        thanks: 'Szívesen!',
+        helpText: 'Tudok: időjárást mondani 🌤️, emlékeztetőt beállítani ⏰, hanggal válaszolni 🎤. Mondd: "időjárás", "mennyi az idő" vagy "emlékeztess…".',
+        remAdded: 'Emlékeztető beállítva: {time} — {text}',
+        remEmpty: 'Még nincs emlékeztető. Add hozzá az elsőt!',
+        remFired: '⏰ Emlékeztető: {text}',
+        remRemoved: 'Emlékeztető törölve.',
+        noReminder: 'Mondd, mire emlékeztesselek, pl. "emlékeztess, hogy felhívjam anyát"',
+        unknownCmd: 'Nem értem a parancsot. Mondd: "időjárás", "mennyi az idő", "emlékeztess…"',
+        micUnsupported: 'A hangvezérlés nem támogatott ebben a böngészőben. Próbáld a Chrome-ot vagy Edge-et.',
+        errCatch: 'Hiba történt, próbáld újra.',
+        logWeather: 'Időjárás lekérve', logReminder: 'Emlékeztető hozzáadva', logMic: 'Hangparancs', logTime: 'Idő lekérve',
+    },
+    fr: {
+        title: 'Voice Assistant', name: 'Assistant',
+        statusReady: 'Prêt à aider', statusListening: 'J\'écoute…', statusThinking: 'Je réfléchis…',
+        bubbleDefault: 'Dites « météo » ou appuyez sur un bouton ci-dessous…',
+        btnWeather: 'Météo', btnVoice: 'Voix', btnAlarm: 'Rappels', btnHelp: 'Aide',
+        remTitle: 'Mes rappels', remAdd: 'Ajouter', logTitle: 'Journal',
+        remPlaceholder: 'ex. appeler maman',
+        weatherFetching: 'Recherche de votre position…', weatherLocError: 'Impossible de trouver votre position. Autorisez la géolocalisation.',
+        weatherFail: 'Impossible d\'obtenir la météo. Vérifiez Internet.',
+        weatherTemp: 'La température actuelle est de {temp}°C. {advice}',
+        adviceCold: 'Il fait froid — mettez une veste chaude !',
+        adviceCool: 'Il fait frais — prenez une veste légère.',
+        adviceWarm: 'Il fait chaud — un t-shirt suffit.',
+        adviceHot: 'Très chaud — mettez quelque chose de léger, buvez de l\'eau !',
+        timeNow: 'Il est {time} maintenant.',
+        hello: 'Bonjour ! Comment puis-je aider ?',
+        goodbye: 'Au revoir !',
+        thanks: 'Je vous en prie !',
+        helpText: 'Je peux : dire la météo 🌤️, définir des rappels ⏰, répondre par la voix 🎤. Dites : « météo », « quelle heure est-il » ou « rappelle-moi… ».',
+        remAdded: 'Rappel défini : {time} — {text}',
+        remEmpty: 'Aucun rappel pour l\'instant. Ajoutez le premier !',
+        remFired: '⏰ Rappel : {text}',
+        remRemoved: 'Rappel supprimé.',
+        noReminder: 'Dites quoi rappeler, ex. « rappelle-moi d\'appeler maman »',
+        unknownCmd: 'Je n\'ai pas compris. Dites : « météo », « quelle heure », « rappelle… »',
+        micUnsupported: 'Le contrôle vocal n\'est pas pris en charge par ce navigateur. Essayez Chrome ou Edge.',
+        errCatch: 'Une erreur est survenue, réessayez.',
+        logWeather: 'Météo demandée', logReminder: 'Rappel ajouté', logMic: 'Commande vocale', logTime: 'Heure demandée',
+    },
+};
+
+// ============================================================
+// СТАН
+// ============================================================
+let lang = 'uk';
+let reminders = loadReminders();
+let recognition = null;
+let isListening = false;
+let voiceEnabled = true;
+
+function loadReminders() {
+    try { return JSON.parse(localStorage.getItem('vaReminders') || '[]'); }
+    catch (e) { return []; }
+}
+function saveReminders() {
+    try { localStorage.setItem('vaReminders', JSON.stringify(reminders)); } catch (e) {}
+}
+
+// ============================================================
+// I18N
+// ============================================================
+function t(key, vars) {
+    let s = (I18N[lang] && I18N[lang][key]) || I18N.uk[key] || key;
+    if (vars) for (const k in vars) s = s.replace('{' + k + '}', vars[k]);
+    return s;
+}
+
+const $ = id => document.getElementById(id);
+
+function setLang(l) {
+    lang = l;
+    document.querySelectorAll('.lang-switch button').forEach(b => {
+        b.classList.toggle('active', b.dataset.lang === l);
+    });
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+    });
+    $('titleText').textContent = t('title');
+    $('assistantName').textContent = t('name');
+    $('assistantStatus').textContent = t('statusReady');
+    $('bubbleText').textContent = t('bubbleDefault');
+    $('remText').placeholder = t('remPlaceholder');
+    renderReminders();
+}
+
+document.getElementById('langSwitch').addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (btn) setLang(btn.dataset.lang);
+});
+
+// ============================================================
+// ОЗВУЧЕННЯ
+// ============================================================
+const VOICE_LANG = { uk: 'uk-UA', ru: 'ru-RU', en: 'en-US', hu: 'hu-HU', fr: 'fr-FR' };
+const REC_LANG = { uk: 'uk-UA', ru: 'ru-RU', en: 'en-US', hu: 'hu-HU', fr: 'fr-FR' };
+
+function speak(text) {
+    if (!voiceEnabled || !('speechSynthesis' in window)) return;
+    try {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = VOICE_LANG[lang] || 'uk-UA';
+        u.rate = 1.0;
+        const voices = window.speechSynthesis.getVoices();
+        const v = voices.find(v => v.lang && v.lang.startsWith(VOICE_LANG[lang].slice(0, 2)));
+        if (v) u.voice = v;
+        window.speechSynthesis.speak(u);
+        const avatar = $('avatar');
+        avatar.classList.add('speaking');
+        u.onend = () => avatar.classList.remove('speaking');
+    } catch (e) { /* ignore */ }
+}
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => {};
+}
+
+// ============================================================
+// ВІДПОВІДЬ АСИСТЕНТА
+// ============================================================
+function say(text, logText) {
+    $('bubbleIco').textContent = '🤖';
+    $('bubbleText').textContent = text;
+    $('bubbleText').classList.remove('placeholder');
+    speak(text);
+    if (logText) addLog(logText, text);
+    $('assistantStatus').textContent = t('statusReady');
+}
+
+function addLog(action, detail) {
+    const log = $('log');
+    const now = new Date();
+    const ts = now.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+    const div = document.createElement('div');
+    div.className = 'entry';
+    div.innerHTML = `<b>[${ts}] ${action}:</b> ${detail}`;
+    log.prepend(div);
+    while (log.children.length > 12) log.removeChild(log.lastChild);
+}
+
+// ============================================================
+// ПОГОДА
+// ============================================================
+function askWeather() {
+    $('assistantStatus').textContent = t('statusThinking');
+    $('bubbleIco').textContent = '🌤️';
+    $('bubbleText').textContent = t('weatherFetching');
+    if (!navigator.geolocation) { say(t('weatherLocError')); return; }
+
+    navigator.geolocation.getCurrentPosition(async pos => {
+        try {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat +
+                        '&longitude=' + lon + '&current_weather=true';
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            const temp = Math.round(data.current_weather.temperature);
+            let advice;
+            if (temp <= 5) advice = t('adviceCold');
+            else if (temp <= 15) advice = t('adviceCool');
+            else if (temp <= 25) advice = t('adviceWarm');
+            else advice = t('adviceHot');
+            const text = t('weatherTemp', { temp, advice });
+            say(text, t('logWeather'));
+        } catch (e) {
+            say(t('weatherFail'));
+        }
+    }, () => {
+        say(t('weatherLocError'));
+    }, { timeout: 10000 });
+}
+
+// ============================================================
+// НАГАДУВАННЯ
+// ============================================================
+function toggleReminders() {
+    $('reminderBox').classList.toggle('show');
+    renderReminders();
+}
+
+function addReminder() {
+    const time = $('remTime').value;
+    const text = $('remText').value.trim();
+    if (!time || !text) {
+        $('remText').focus();
+        return;
+    }
+    const id = Date.now();
+    reminders.push({ id, time, text, fired: false });
+    saveReminders();
+    $('remText').value = '';
+    renderReminders();
+    say(t('remAdded', { time, text }), t('logReminder'));
+}
+
+function removeReminder(id) {
+    reminders = reminders.filter(r => r.id !== id);
+    saveReminders();
+    renderReminders();
+}
+
+function renderReminders() {
+    const list = $('reminderList');
+    if (reminders.length === 0) {
+        list.innerHTML = `<div class="empty-rem">${t('remEmpty')}</div>`;
+        return;
+    }
+    list.innerHTML = reminders.map(r => `
+        <div class="reminder-item ${r.fired ? 'fired' : ''}">
+            <span class="r-time">${r.time}</span>
+            <span class="r-text">${escapeHtml(r.text)}</span>
+            <button class="r-del" onclick="removeReminder(${r.id})" title="×">✕</button>
+        </div>
+    `).join('');
+}
+
+function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Перевірка нагадувань щохвилини
+setInterval(checkReminders, 20000);
+function checkReminders() {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const cur = hh + ':' + mm;
+    reminders.forEach(r => {
+        if (!r.fired && r.time === cur) {
+            r.fired = true;
+            saveReminders();
+            renderReminders();
+            $('reminderBox').classList.add('show');
+            say(t('remFired', { text: r.text }), '⏰ ' + r.text);
+        }
+    });
+}
+
+// ============================================================
+// ГОЛОСОВЕ КЕРУВАННЯ
+// ============================================================
+function toggleMic() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+        say(t('micUnsupported'));
+        return;
+    }
+    if (isListening) { recognition.stop(); return; }
+    if (!recognition) {
+        recognition = new SR();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.onresult = e => {
+            const text = e.results[0][0].transcript.trim().toLowerCase();
+            $('assistantStatus').textContent = t('statusThinking');
+            handleVoiceCommand(text);
+        };
+        recognition.onerror = e => {
+            isListening = false;
+            $('micBtn').classList.remove('listening');
+            $('assistantStatus').textContent = t('statusReady');
+            if (e.error !== 'aborted' && e.error !== 'no-speech') {
+                say(t('unknownCmd'));
+            }
+        };
+        recognition.onend = () => {
+            isListening = false;
+            $('micBtn').classList.remove('listening');
+            $('assistantStatus').textContent = t('statusReady');
+        };
+    }
+    try {
+        recognition.lang = REC_LANG[lang] || 'uk-UA';
+        recognition.start();
+        isListening = true;
+        $('micBtn').classList.add('listening');
+        $('assistantStatus').textContent = t('statusListening');
+        $('bubbleIco').textContent = '🎤';
+        $('bubbleText').textContent = t('statusListening');
+    } catch (e) { /* already started */ }
+}
+
+function handleVoiceCommand(text) {
+    addLog(t('logMic'), text);
+    text = ' ' + text + ' ';
+    // Погода
+    if (/(^|\s)(погод|weather|météo|időjár|време|погода)(\s|$)/iu.test(text)) {
+        askWeather();
+        return;
+    }
+    // Котра година
+    if (/(^|\s)(котра година|который час|what time|quelle heure|mennyi az idő|час|time)(\s|$)/iu.test(text)) {
+        const now = new Date();
+        const time = now.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
+        say(t('timeNow', { time }), t('logTime'));
+        return;
+    }
+    // Вітання
+    if (/(^|\s)(привіт|здравств|привет|hello|hi|bonjour|szia|sziasztok)(\s|$)/iu.test(text)) {
+        say(t('hello'));
+        return;
+    }
+    // Прощання
+    if (/(^|\s)(до побачення|пока|bye|goodbye|au revoir|viszlát)(\s|$)/iu.test(text)) {
+        say(t('goodbye'));
+        return;
+    }
+    // Подяка
+    if (/(^|\s)(дякую|спасибо|thanks|thank you|merci|kösz)(\s|$)/iu.test(text)) {
+        say(t('thanks'));
+        return;
+    }
+    // Нагадування
+    if (/(^|\s)(нагадай|напомни|remind|rappelle|emlékeztess)(\s|$)/iu.test(text)) {
+        parseReminderCommand(text);
+        return;
+    }
+    // Допомога
+    if (/(допомож|помощ|help|aide|segítség)/iu.test(text)) {
+        say(t('helpText'));
+        return;
+    }
+    say(t('unknownCmd'));
+}
+
+function parseReminderCommand(text) {
+    // Спробуємо знайти час HH:MM або "о 18:34", "в 8 утра"
+    let time = null;
+    const hhmm = text.match(/(\d{1,2})[.:](\d{2})/);
+    if (hhmm) {
+        let h = parseInt(hhmm[1], 10);
+        let m = parseInt(hhmm[2], 10);
+        if (h < 0 || h > 23) h = Math.min(23, Math.abs(h) % 24);
+        if (m < 0 || m > 59) m = 0;
+        time = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+    } else {
+        // Спроба: "в 6 вечера", "о 9 утра"
+        const hourWord = text.match(/(\d{1,2})\s*(?:годин|часов|часа|heures|óra)/iu);
+        const per = text.match(/(?:в|о|at|à)\s*(\d{1,2})\b/iu);
+        const hour = (hourWord && hourWord[1]) || (per && per[1]);
+        if (hour) {
+            let h = parseInt(hour, 10);
+            if (/вечор|вечера|pm|soir/iu.test(text)) h = (h + 12) % 24;
+            time = String(h).padStart(2, '0') + ':00';
+        }
+    }
+
+    // Текст нагадування: прибираємо слова-команди (кирилиця не дружить з \b, тому через \s*...\s*)
+    let clean = text.replace(/\s*(нагадай|напомни|remind me|remind|rappelle|emlékeztess)\s*/giu, ' ');
+    clean = clean.replace(/\s*(мені|мне|me|to)\s*/giu, ' ');
+    clean = clean.replace(/(?:в|о|at|à)\s*\d{1,2}(?:[.:]\d{2})?\s*(?:годин|часов|часа|heures|óra)?/giu, '');
+    clean = clean.replace(/\d{1,2}[.:]\d{2}/g, '');
+    clean = clean.replace(/\d{1,2}\s*(?:годин|часов|часа|heures|óra)/giu, '');
+    clean = clean.replace(/[.,!?]+/g, '').replace(/\s+/g, ' ').trim();
+
+    if (!clean) clean = t('remPlaceholder').replace(/[^а-яА-Яіїєґa-zA-Z ]/g, '').trim() || 'reminder';
+    if (clean.length > 60) clean = clean.slice(0, 60);
+
+    if (time) {
+        $('remTime').value = time;
+        $('remText').value = clean;
+        addReminder();
+    } else {
+        // Якщо часу немає — ставимо на завтра 9:00
+        $('remTime').value = '09:00';
+        $('remText').value = clean;
+        addReminder();
+        say(t('remAdded', { time: '09:00', text: clean }));
+    }
+}
+
+// ============================================================
+// ДОПОМОГА
+// ============================================================
+function showHelp() {
+    say(t('helpText'));
+}
+
+// ============================================================
+// СТАРТ
+// ============================================================
+setLang('uk');
+renderReminders();
+</script>
+</body>
+</html>
