@@ -43,6 +43,7 @@ body::after{
 }
 .lang-switch button:hover{background:rgba(255,255,255,0.15);color:#fff}
 .lang-switch button.active{background:linear-gradient(135deg,#3f6bb0,#6a4ab0);color:#fff;box-shadow:0 3px 10px rgba(63,107,176,0.4)}
+.lang-switch .voice-toggle{border-left:1px solid rgba(255,255,255,0.25);border-radius:9px;font-size:14px;padding:6px 10px}
 
 /* ===== Card ===== */
 .card{
@@ -219,6 +220,7 @@ body::after{
             <button data-lang="en">🇬🇧 EN</button>
             <button data-lang="hu">🇭🇺 HU</button>
             <button data-lang="fr">🇫🇷 FR</button>
+            <button class="voice-toggle" id="voiceBtn" onclick="toggleVoice()" title="Озвучка">🔊</button>
         </div>
     </div>
 
@@ -325,7 +327,7 @@ const I18N = {
         timeNow: 'Зараз {time}.',
         hello: 'Привіт! Чим можу допомогти?',
         goodbye: 'До побачення!',
-        thanks: 'Будь ласка!',
+        thanks: 'Будь ласка! 😊', voiceOn: 'Озвучку увімкнено.',
         helpText: 'Я вмію: погода 🌤️, валюта 💱, нагадування ⏰, час 🕐, дата 📅. Скажи: «погода», «курс», «котра година», «яка дата» або «нагадай мені…».',
         remAdded: 'Нагадування додано: {time} — {text}',
         remEmpty: 'Нагадувань поки немає. Додай перше!',
@@ -396,7 +398,7 @@ const I18N = {
         timeNow: 'Сейчас {time}.',
         hello: 'Привет! Чем могу помочь?',
         goodbye: 'До свидания!',
-        thanks: 'Пожалуйста!',
+        thanks: 'Пожалуйста! 😊', voiceOn: 'Озвучка включена.',
         helpText: 'Я умею: погода 🌤️, валюта 💱, напоминания ⏰, время 🕐, дата 📅. Скажи: «погода», «курс», «который час», «какое число» или «напомни мне…».',
         remAdded: 'Напоминание добавлено: {time} — {text}',
         remEmpty: 'Напоминаний пока нет. Добавь первое!',
@@ -467,7 +469,7 @@ const I18N = {
         timeNow: 'It is {time} now.',
         hello: 'Hello! How can I help?',
         goodbye: 'Goodbye!',
-        thanks: 'You are welcome!',
+        thanks: 'You are welcome! 😊', voiceOn: 'Voice is on.',
         helpText: 'I can tell weather 🌤️, currency 💱, set reminders ⏰, time 🕐, date 📅. Say: "weather", "currency", "what time is it", "what date" or "remind me…".',
         remAdded: 'Reminder set: {time} — {text}',
         remEmpty: 'No reminders yet. Add your first!',
@@ -538,7 +540,7 @@ const I18N = {
         timeNow: 'Most {time} van.',
         hello: 'Szia! Miben segíthetek?',
         goodbye: 'Viszlát!',
-        thanks: 'Szívesen!',
+        thanks: 'Szívesen! 😊', voiceOn: 'Hang bekapcsolva.',
         helpText: 'Tudok: időjárás 🌤️, árfolyam 💱, emlékeztető ⏰, idő 🕐, dátum 📅. Mondd: "időjárás", "árfolyam", "mennyi az idő", "milyen dátum" vagy "emlékeztess…".',
         remAdded: 'Emlékeztető beállítva: {time} — {text}',
         remEmpty: 'Még nincs emlékeztető. Add hozzá az elsőt!',
@@ -609,7 +611,7 @@ const I18N = {
         timeNow: 'Il est {time} maintenant.',
         hello: 'Bonjour ! Comment puis-je aider ?',
         goodbye: 'Au revoir !',
-        thanks: 'Je vous en prie !',
+        thanks: 'Je vous en prie ! 😊', voiceOn: 'La voix est activée.',
         helpText: 'Je peux : météo 🌤️, devises 💱, rappels ⏰, heure 🕐, date 📅. Dites : « météo », « taux », « quelle heure est-il », « quelle date » ou « rappelle-moi… ».',
         remAdded: 'Rappel défini : {time} — {text}',
         remEmpty: 'Aucun rappel pour l\'instant. Ajoutez le premier !',
@@ -682,7 +684,7 @@ function t(key, vars) {
 
 const $ = id => document.getElementById(id);
 
-function setLang(l) {
+function setLang(l, announce) {
     lang = l;
     document.querySelectorAll('.lang-switch button').forEach(b => {
         b.classList.toggle('active', b.dataset.lang === l);
@@ -697,13 +699,16 @@ function setLang(l) {
     $('remText').placeholder = t('remPlaceholder');
     $('noteText').placeholder = t('notesPlaceholder');
     $('cmdInput').placeholder = t('placeHolder');
+    const vb = $('voiceBtn');
+    if (vb) vb.textContent = voiceEnabled ? '🔊' : '🔇';
     renderReminders();
     renderNotes();
+    if (announce && voiceEnabled) speak(t('hello'));
 }
 
 document.getElementById('langSwitch').addEventListener('click', e => {
     const btn = e.target.closest('button');
-    if (btn) setLang(btn.dataset.lang);
+    if (btn && btn.dataset.lang) setLang(btn.dataset.lang, true);
 });
 
 // ============================================================
@@ -712,6 +717,31 @@ document.getElementById('langSwitch').addEventListener('click', e => {
 const VOICE_LANG = { uk: 'uk-UA', ru: 'ru-RU', en: 'en-US', hu: 'hu-HU', fr: 'fr-FR' };
 const REC_LANG = { uk: 'uk-UA', ru: 'ru-RU', en: 'en-US', hu: 'hu-HU', fr: 'fr-FR' };
 
+let cachedVoices = [];
+
+function refreshVoices() {
+    if ('speechSynthesis' in window) {
+        cachedVoices = window.speechSynthesis.getVoices();
+    }
+}
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = refreshVoices;
+}
+
+// Надійний вибір голосу за кодом мови:
+// 1) точний збіг (en-US) 2) збіг за 2 літерами (en) 3) будь-який голос з тими 2 літерами
+function pickVoice(langCode) {
+    if (!cachedVoices.length) refreshVoices();
+    const voices = cachedVoices;
+    if (!voices || !voices.length) return null;
+    const norm = s => (s || '').replace('_', '-').toLowerCase();
+    const code = norm(langCode);
+    let v = voices.find(x => norm(x.lang) === code);
+    if (!v) v = voices.find(x => norm(x.lang).startsWith(code.slice(0, 2)));
+    if (!v) v = voices.find(x => norm(x.lang).slice(0, 2) === code.slice(0, 2));
+    return v || null;
+}
+
 function speak(text) {
     if (!voiceEnabled || !('speechSynthesis' in window)) return;
     try {
@@ -719,8 +749,7 @@ function speak(text) {
         const u = new SpeechSynthesisUtterance(text);
         u.lang = VOICE_LANG[lang] || 'uk-UA';
         u.rate = 1.0;
-        const voices = window.speechSynthesis.getVoices();
-        const v = voices.find(v => v.lang && v.lang.startsWith(VOICE_LANG[lang].slice(0, 2)));
+        const v = pickVoice(VOICE_LANG[lang]);
         if (v) u.voice = v;
         window.speechSynthesis.speak(u);
         const avatar = $('avatar');
@@ -728,9 +757,20 @@ function speak(text) {
         u.onend = () => avatar.classList.remove('speaking');
     } catch (e) { /* ignore */ }
 }
-if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = () => {};
+refreshVoices();
+
+// Кнопка вкл/викл озвучки 🔊/🔇
+function toggleVoice() {
+    voiceEnabled = !voiceEnabled;
+    try { localStorage.setItem('va_voice', voiceEnabled ? '1' : '0'); } catch (e) {}
+    const btn = $('voiceBtn');
+    if (btn) btn.textContent = voiceEnabled ? '🔊' : '🔇';
+    if (voiceEnabled) speak(t('voiceOn'));
 }
+try {
+    const savedVoice = localStorage.getItem('va_voice');
+    if (savedVoice === '0') voiceEnabled = false;
+} catch (e) {}
 
 // ============================================================
 // ВІДПОВІДЬ АСИСТЕНТА
