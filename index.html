@@ -71,7 +71,21 @@ body{
 .btn-mic{background:#e5533c;color:#fff}
 .btn-mic.listening{background:#b33a28;animation:pulse 1.2s infinite}
 .btn-alarm{background:#7a9a3f;color:#fff}
+.btn-currency{background:#a86a3f;color:#fff}
 .btn-help{background:#8a7ab0;color:#fff}
+
+/* ===== Command input ===== */
+.cmd-input{display:flex;gap:8px;margin-top:14px}
+.cmd-input input{
+    flex:1;padding:11px 14px;border:1px solid #d4deec;border-radius:10px;
+    font-size:14px;font-family:inherit;outline:none;background:#fafcff;
+}
+.cmd-input input:focus{border-color:#7a9ad0;background:#fff}
+.cmd-input button{
+    padding:11px 18px;background:#3f6bb0;color:#fff;border:none;border-radius:10px;
+    cursor:pointer;font-size:16px;font-family:inherit;transition:0.15s;
+}
+.cmd-input button:hover{background:#35609e}
 
 /* ===== Reminders ===== */
 .reminder-box{margin-top:16px;border-top:1px solid #e8eef8;padding-top:16px;display:none}
@@ -140,7 +154,13 @@ body{
             <button class="btn-weather" onclick="askWeather()">🌤️ <span data-i18n="btnWeather">Погода</span></button>
             <button class="btn-mic" id="micBtn" onclick="toggleMic()">🎤 <span data-i18n="btnVoice">Голос</span></button>
             <button class="btn-alarm" onclick="toggleReminders()">⏰ <span data-i18n="btnAlarm">Нагадування</span></button>
+            <button class="btn-currency" onclick="askCurrency()">💱 <span data-i18n="btnCurrency">Валюта</span></button>
             <button class="btn-help" onclick="showHelp()">❓ <span data-i18n="btnHelp">Допомога</span></button>
+        </div>
+
+        <div class="cmd-input">
+            <input type="text" id="cmdInput" placeholder="Введи команду…" maxlength="80">
+            <button onclick="sendCommand()">➤</button>
         </div>
 
         <div class="reminder-box" id="reminderBox">
@@ -169,7 +189,7 @@ const I18N = {
         title: 'Voice Assistant', name: 'Асистент',
         statusReady: 'Готовий допомогти', statusListening: 'Слухаю…', statusThinking: 'Думаю…',
         bubbleDefault: 'Скажи «погода» або натисни кнопку нижче…',
-        btnWeather: 'Погода', btnVoice: 'Голос', btnAlarm: 'Нагадування', btnHelp: 'Допомога',
+        btnWeather: 'Погода', btnVoice: 'Голос', btnAlarm: 'Нагадування', btnCurrency: 'Валюта', btnHelp: 'Допомога',
         remTitle: 'Мої нагадування', remAdd: 'Додати', logTitle: 'Журнал',
         remPlaceholder: 'Наприклад: подзвонити мамі',
         weatherFetching: 'Шукаю твоє місцезнаходження…', weatherLocError: 'Не можу визначити місцезнаходження. Дозволь доступ до геолокації.',
@@ -183,7 +203,7 @@ const I18N = {
         hello: 'Привіт! Чим можу допомогти?',
         goodbye: 'До побачення!',
         thanks: 'Будь ласка!',
-        helpText: 'Я вмію: розповісти погоду 🌤️, ставити нагадування ⏰, відповідати голосом 🎤. Скажи: «погода», «котра година» або «нагадай мені…».',
+        helpText: 'Я вмію: погода 🌤️, валюта 💱, нагадування ⏰, час 🕐, дата 📅. Скажи: «погода», «курс», «котра година», «яка дата» або «нагадай мені…».',
         remAdded: 'Нагадування додано: {time} — {text}',
         remEmpty: 'Нагадувань поки немає. Додай перше!',
         remFired: '⏰ Нагадування: {text}',
@@ -193,12 +213,18 @@ const I18N = {
         micUnsupported: 'Голосове керування не підтримується в цьому браузері. Спробуй Chrome або Edge.',
         errCatch: 'Сталася помилка, спробуй ще раз.',
         logWeather: 'Запитано погоду', logReminder: 'Додано нагадування', logMic: 'Голосова команда', logTime: 'Запитано час',
+        currencyFail: 'Не вдалося отримати курси валют. Перевір інтернет.',
+        currencyText: 'Курси валют: {usd} за долар, {eur} за євро.',
+        dateNow: 'Сьогодні {date}.',
+        placeHolder: 'Введи команду…', btnSend: '➤',
+        weatherCity: 'Погода в місті {city}: {temp}°C. {advice}',
+        inputCmd: 'Команда введена: {text}',
     },
     ru: {
         title: 'Voice Assistant', name: 'Ассистент',
         statusReady: 'Готов помочь', statusListening: 'Слушаю…', statusThinking: 'Думаю…',
         bubbleDefault: 'Скажи «погода» или нажми кнопку ниже…',
-        btnWeather: 'Погода', btnVoice: 'Голос', btnAlarm: 'Напоминания', btnHelp: 'Помощь',
+        btnWeather: 'Погода', btnVoice: 'Голос', btnAlarm: 'Напоминания', btnCurrency: 'Валюта', btnHelp: 'Помощь',
         remTitle: 'Мои напоминания', remAdd: 'Добавить', logTitle: 'Журнал',
         remPlaceholder: 'Например: позвонить маме',
         weatherFetching: 'Ищу твоё местоположение…', weatherLocError: 'Не могу определить местоположение. Разреши доступ к геолокации.',
@@ -212,7 +238,7 @@ const I18N = {
         hello: 'Привет! Чем могу помочь?',
         goodbye: 'До свидания!',
         thanks: 'Пожалуйста!',
-        helpText: 'Я умею: рассказывать погоду 🌤️, ставить напоминания ⏰, отвечать голосом 🎤. Скажи: «погода», «который час» или «напомни мне…».',
+        helpText: 'Я умею: погода 🌤️, валюта 💱, напоминания ⏰, время 🕐, дата 📅. Скажи: «погода», «курс», «который час», «какое число» или «напомни мне…».',
         remAdded: 'Напоминание добавлено: {time} — {text}',
         remEmpty: 'Напоминаний пока нет. Добавь первое!',
         remFired: '⏰ Напоминание: {text}',
@@ -222,12 +248,18 @@ const I18N = {
         micUnsupported: 'Голосовое управление не поддерживается в этом браузере. Попробуй Chrome или Edge.',
         errCatch: 'Произошла ошибка, попробуй ещё раз.',
         logWeather: 'Запрошена погода', logReminder: 'Добавлено напоминание', logMic: 'Голосовая команда', logTime: 'Запрошено время',
+        currencyFail: 'Не удалось получить курсы валют. Проверь интернет.',
+        currencyText: 'Курсы валют: {usd} за доллар, {eur} за евро.',
+        dateNow: 'Сегодня {date}.',
+        placeHolder: 'Введи команду…', btnSend: '➤',
+        weatherCity: 'Погода в городе {city}: {temp}°C. {advice}',
+        inputCmd: 'Команда введена: {text}',
     },
     en: {
         title: 'Voice Assistant', name: 'Assistant',
         statusReady: 'Ready to help', statusListening: 'Listening…', statusThinking: 'Thinking…',
         bubbleDefault: 'Say "weather" or press a button below…',
-        btnWeather: 'Weather', btnVoice: 'Voice', btnAlarm: 'Reminders', btnHelp: 'Help',
+        btnWeather: 'Weather', btnVoice: 'Voice', btnAlarm: 'Reminders', btnCurrency: 'Currency', btnHelp: 'Help',
         remTitle: 'My reminders', remAdd: 'Add', logTitle: 'Log',
         remPlaceholder: 'e.g. call mom',
         weatherFetching: 'Finding your location…', weatherLocError: 'Cannot find location. Allow geolocation access.',
@@ -241,7 +273,7 @@ const I18N = {
         hello: 'Hello! How can I help?',
         goodbye: 'Goodbye!',
         thanks: 'You are welcome!',
-        helpText: 'I can tell weather 🌤️, set reminders ⏰, reply by voice 🎤. Say: "weather", "what time is it" or "remind me…".',
+        helpText: 'I can tell weather 🌤️, currency 💱, set reminders ⏰, time 🕐, date 📅. Say: "weather", "currency", "what time is it", "what date" or "remind me…".',
         remAdded: 'Reminder set: {time} — {text}',
         remEmpty: 'No reminders yet. Add your first!',
         remFired: '⏰ Reminder: {text}',
@@ -251,12 +283,18 @@ const I18N = {
         micUnsupported: 'Voice control is not supported in this browser. Try Chrome or Edge.',
         errCatch: 'Something went wrong, try again.',
         logWeather: 'Weather requested', logReminder: 'Reminder added', logMic: 'Voice command', logTime: 'Time requested',
+        currencyFail: 'Could not get currency rates. Check internet.',
+        currencyText: 'Exchange rates: {usd} per dollar, {eur} per euro.',
+        dateNow: 'Today is {date}.',
+        placeHolder: 'Type a command…', btnSend: '➤',
+        weatherCity: 'Weather in {city}: {temp}°C. {advice}',
+        inputCmd: 'Command entered: {text}',
     },
     hu: {
         title: 'Voice Assistant', name: 'Asszisztens',
         statusReady: 'Készen állok', statusListening: 'Hallgatom…', statusThinking: 'Gondolkodom…',
         bubbleDefault: 'Mondd, hogy "időjárás", vagy nyomj egy gombot lent…',
-        btnWeather: 'Időjárás', btnVoice: 'Hang', btnAlarm: 'Emlékeztetők', btnHelp: 'Segítség',
+        btnWeather: 'Időjárás', btnVoice: 'Hang', btnAlarm: 'Emlékeztetők', btnCurrency: 'Árfolyam', btnHelp: 'Segítség',
         remTitle: 'Emlékeztetőim', remAdd: 'Hozzáad', logTitle: 'Napló',
         remPlaceholder: 'pl. felhívni anyát',
         weatherFetching: 'Keresem a helyzeted…', weatherLocError: 'Nem találom a helyzeted. Engedélyezd a helymeghatározást.',
@@ -270,7 +308,7 @@ const I18N = {
         hello: 'Szia! Miben segíthetek?',
         goodbye: 'Viszlát!',
         thanks: 'Szívesen!',
-        helpText: 'Tudok: időjárást mondani 🌤️, emlékeztetőt beállítani ⏰, hanggal válaszolni 🎤. Mondd: "időjárás", "mennyi az idő" vagy "emlékeztess…".',
+        helpText: 'Tudok: időjárás 🌤️, árfolyam 💱, emlékeztető ⏰, idő 🕐, dátum 📅. Mondd: "időjárás", "árfolyam", "mennyi az idő", "milyen dátum" vagy "emlékeztess…".',
         remAdded: 'Emlékeztető beállítva: {time} — {text}',
         remEmpty: 'Még nincs emlékeztető. Add hozzá az elsőt!',
         remFired: '⏰ Emlékeztető: {text}',
@@ -280,12 +318,18 @@ const I18N = {
         micUnsupported: 'A hangvezérlés nem támogatott ebben a böngészőben. Próbáld a Chrome-ot vagy Edge-et.',
         errCatch: 'Hiba történt, próbáld újra.',
         logWeather: 'Időjárás lekérve', logReminder: 'Emlékeztető hozzáadva', logMic: 'Hangparancs', logTime: 'Idő lekérve',
+        currencyFail: 'Nem sikerült az árfolyamok lekérése. Ellenőrizd az internetet.',
+        currencyText: 'Árfolyamok: {usd} dolláronként, {eur} eurónként.',
+        dateNow: 'Ma {date} van.',
+        placeHolder: 'Írj be egy parancsot…', btnSend: '➤',
+        weatherCity: 'Időjárás {city} városában: {temp}°C. {advice}',
+        inputCmd: 'Parancs beírva: {text}',
     },
     fr: {
         title: 'Voice Assistant', name: 'Assistant',
         statusReady: 'Prêt à aider', statusListening: 'J\'écoute…', statusThinking: 'Je réfléchis…',
         bubbleDefault: 'Dites « météo » ou appuyez sur un bouton ci-dessous…',
-        btnWeather: 'Météo', btnVoice: 'Voix', btnAlarm: 'Rappels', btnHelp: 'Aide',
+        btnWeather: 'Météo', btnVoice: 'Voix', btnAlarm: 'Rappels', btnCurrency: 'Devises', btnHelp: 'Aide',
         remTitle: 'Mes rappels', remAdd: 'Ajouter', logTitle: 'Journal',
         remPlaceholder: 'ex. appeler maman',
         weatherFetching: 'Recherche de votre position…', weatherLocError: 'Impossible de trouver votre position. Autorisez la géolocalisation.',
@@ -299,7 +343,7 @@ const I18N = {
         hello: 'Bonjour ! Comment puis-je aider ?',
         goodbye: 'Au revoir !',
         thanks: 'Je vous en prie !',
-        helpText: 'Je peux : dire la météo 🌤️, définir des rappels ⏰, répondre par la voix 🎤. Dites : « météo », « quelle heure est-il » ou « rappelle-moi… ».',
+        helpText: 'Je peux : météo 🌤️, devises 💱, rappels ⏰, heure 🕐, date 📅. Dites : « météo », « taux », « quelle heure est-il », « quelle date » ou « rappelle-moi… ».',
         remAdded: 'Rappel défini : {time} — {text}',
         remEmpty: 'Aucun rappel pour l\'instant. Ajoutez le premier !',
         remFired: '⏰ Rappel : {text}',
@@ -309,6 +353,12 @@ const I18N = {
         micUnsupported: 'Le contrôle vocal n\'est pas pris en charge par ce navigateur. Essayez Chrome ou Edge.',
         errCatch: 'Une erreur est survenue, réessayez.',
         logWeather: 'Météo demandée', logReminder: 'Rappel ajouté', logMic: 'Commande vocale', logTime: 'Heure demandée',
+        currencyFail: 'Impossible d\'obtenir les taux de change. Vérifiez Internet.',
+        currencyText: 'Taux de change : {usd} par dollar, {eur} par euro.',
+        dateNow: 'Aujourd\'hui, c\'est {date}.',
+        placeHolder: 'Tapez une commande…', btnSend: '➤',
+        weatherCity: 'Météo à {city} : {temp}°C. {advice}',
+        inputCmd: 'Commande saisie : {text}',
     },
 };
 
@@ -353,6 +403,7 @@ function setLang(l) {
     $('assistantStatus').textContent = t('statusReady');
     $('bubbleText').textContent = t('bubbleDefault');
     $('remText').placeholder = t('remPlaceholder');
+    $('cmdInput').placeholder = t('placeHolder');
     renderReminders();
 }
 
@@ -434,7 +485,23 @@ function askWeather() {
             else if (temp <= 15) advice = t('adviceCool');
             else if (temp <= 25) advice = t('adviceWarm');
             else advice = t('adviceHot');
-            const text = t('weatherTemp', { temp, advice });
+
+            // Назва міста через reverse geocoding (безкоштовно, без ключа)
+            let city = '';
+            try {
+                const locLang = lang === 'uk' ? 'uk' : lang === 'ru' ? 'ru' : lang === 'hu' ? 'hu' : 'fr';
+                const geoUrl = 'https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' +
+                    lat + '&longitude=' + lon + '&localityLanguage=' + locLang;
+                const geoRes = await fetch(geoUrl);
+                if (geoRes.ok) {
+                    const geo = await geoRes.json();
+                    city = geo.city || geo.locality || geo.principalSubdivision || '';
+                }
+            } catch (e) { /* city is optional */ }
+
+            const text = city
+                ? t('weatherCity', { city, temp, advice })
+                : t('weatherTemp', { temp, advice });
             say(text, t('logWeather'));
         } catch (e) {
             say(t('weatherFail'));
@@ -443,6 +510,54 @@ function askWeather() {
         say(t('weatherLocError'));
     }, { timeout: 10000 });
 }
+
+// ============================================================
+// ВАЛЮТА
+// ============================================================
+function askCurrency() {
+    $('assistantStatus').textContent = t('statusThinking');
+    $('bubbleIco').textContent = '💱';
+    $('bubbleText').textContent = t('statusThinking');
+    fetch('https://open.er-api.com/v6/latest/USD')
+        .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+        .then(d => {
+            const usd = d.rates.UAH;
+            const eur = usd / d.rates.EUR;
+            const text = t('currencyText', {
+                usd: usd.toFixed(2) + ' ₴',
+                eur: eur.toFixed(2) + ' ₴',
+            });
+            say(text, '💱 ' + t('btnCurrency'));
+        })
+        .catch(() => say(t('currencyFail')));
+}
+
+// ============================================================
+// ДАТА
+// ============================================================
+function askDate() {
+    const now = new Date();
+    const date = now.toLocaleDateString(lang, {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+    say(t('dateNow', { date }), t('logTime'));
+}
+
+// ============================================================
+// ТЕКСТОВИЙ ВВІД
+// ============================================================
+function sendCommand() {
+    const input = $('cmdInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    addLog(t('logMic'), text);
+    handleVoiceCommand(text);
+}
+
+$('cmdInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendCommand();
+});
 
 // ============================================================
 // НАГАДУВАННЯ
@@ -505,9 +620,30 @@ function checkReminders() {
             saveReminders();
             renderReminders();
             $('reminderBox').classList.add('show');
+            playAlarmSound();
             say(t('remFired', { text: r.text }), '⏰ ' + r.text);
         }
     });
+}
+
+// Простий звук нагадування (Web Audio API — без файлів)
+function playAlarmSound() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const notes = [880, 1108.73, 1318.51, 1760];
+        notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.001, ctx.currentTime + i * 0.18);
+            gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + i * 0.18 + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.16);
+            osc.connect(gain).connect(ctx.destination);
+            osc.start(ctx.currentTime + i * 0.18);
+            osc.stop(ctx.currentTime + i * 0.18 + 0.2);
+        });
+    } catch (e) { /* audio optional */ }
 }
 
 // ============================================================
@@ -562,11 +698,21 @@ function handleVoiceCommand(text) {
         askWeather();
         return;
     }
+    // Валюта
+    if (/(^|\s)(курс|валюта|currency|taux|devise|deviza|арбуз|валют)(\s|$)/iu.test(text) || /(курс валют|курс долара|курс доллара|курс євро|курс евро|доллар|долар|євро|евро|exchange rate)/iu.test(text)) {
+        askCurrency();
+        return;
+    }
     // Котра година
     if (/(^|\s)(котра година|который час|what time|quelle heure|mennyi az idő|час|time)(\s|$)/iu.test(text)) {
         const now = new Date();
         const time = now.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
         say(t('timeNow', { time }), t('logTime'));
+        return;
+    }
+    // Яка дата
+    if (/(^|\s)(яка дата|какое число|какая дата|what date|quelle date|milyen dátum|дата|date)(\s|$)/iu.test(text)) {
+        askDate();
         return;
     }
     // Вітання
