@@ -72,6 +72,11 @@ body{
 .btn-mic.listening{background:#b33a28;animation:pulse 1.2s infinite}
 .btn-alarm{background:#7a9a3f;color:#fff}
 .btn-currency{background:#a86a3f;color:#fff}
+.btn-forecast{background:#3f7ab0;color:#fff}
+.btn-notes{background:#7a5ab0;color:#fff}
+.btn-calc{background:#b05a7a;color:#fff}
+.btn-coin{background:#b0903f;color:#fff}
+.btn-joke{background:#3fa86a;color:#fff}
 .btn-help{background:#8a7ab0;color:#fff}
 
 /* ===== Command input ===== */
@@ -91,16 +96,17 @@ body{
 .reminder-box{margin-top:16px;border-top:1px solid #e8eef8;padding-top:16px;display:none}
 .reminder-box.show{display:block;animation:fadeIn 0.3s}
 .reminder-box h3{font-size:15px;margin-bottom:10px;color:#4a5a70}
-.reminder-add{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.reminder-add input{
+.add-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.add-row input{
     padding:9px 12px;border:1px solid #d4deec;border-radius:8px;font-size:14px;flex:1;min-width:120px;
     font-family:inherit;outline:none;
 }
-.reminder-add input:focus{border-color:#7a9ad0}
-.reminder-add .time{max-width:110px;text-align:center}
-.reminder-add button{
+.add-row input[type=time]{max-width:110px;text-align:center}
+.add-row input:focus{border-color:#7a9ad0}
+.add-row button{
     padding:9px 16px;background:#7a9a3f;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-family:inherit;
 }
+.add-row button:hover{filter:brightness(1.08)}
 .reminder-list{display:flex;flex-direction:column;gap:6px}
 .reminder-item{
     display:flex;align-items:center;gap:10px;padding:9px 12px;background:#f6f9f0;
@@ -114,6 +120,21 @@ body{
 .reminder-item .r-del:hover{color:#e5533c}
 .reminder-item.fired{opacity:0.5;text-decoration:line-through}
 .empty-rem{font-size:13px;color:#9aa8c0;text-align:center;padding:10px 0}
+
+/* ===== Notes ===== */
+.notes-box{margin-top:16px;border-top:1px solid #e8eef8;padding-top:16px;display:none}
+.notes-box.show{display:block;animation:fadeIn 0.3s}
+.notes-box h3{font-size:15px;margin-bottom:10px;color:#4a5a70}
+.notes-list{display:flex;flex-direction:column;gap:6px}
+.note-item{
+    display:flex;align-items:center;gap:10px;padding:9px 12px;background:#f6f4fa;
+    border:1px solid #e6e0f0;border-radius:8px;font-size:14px;
+}
+.note-item .n-text{flex:1;color:#3a3a50;word-break:break-word}
+.note-item .n-del{
+    background:none;border:none;cursor:pointer;font-size:16px;color:#a08ac0;padding:2px 6px;
+}
+.note-item .n-del:hover{color:#e5533c}
 
 /* ===== Log ===== */
 .log-box{margin-top:16px}
@@ -152,9 +173,14 @@ body{
 
         <div class="actions">
             <button class="btn-weather" onclick="askWeather()">🌤️ <span data-i18n="btnWeather">Погода</span></button>
+            <button class="btn-forecast" onclick="askForecast()">📅 <span data-i18n="btnForecast">Прогноз</span></button>
             <button class="btn-mic" id="micBtn" onclick="toggleMic()">🎤 <span data-i18n="btnVoice">Голос</span></button>
             <button class="btn-alarm" onclick="toggleReminders()">⏰ <span data-i18n="btnAlarm">Нагадування</span></button>
             <button class="btn-currency" onclick="askCurrency()">💱 <span data-i18n="btnCurrency">Валюта</span></button>
+            <button class="btn-notes" onclick="toggleNotes()">📝 <span data-i18n="btnNotes">Замітки</span></button>
+            <button class="btn-calc" onclick="askCalc()">🧮 <span data-i18n="btnCalc">Калькулятор</span></button>
+            <button class="btn-coin" onclick="flipCoin()">🪙 <span data-i18n="btnCoin">Монетка</span></button>
+            <button class="btn-joke" onclick="tellJoke()">😂 <span data-i18n="btnJoke">Жарт</span></button>
             <button class="btn-help" onclick="showHelp()">❓ <span data-i18n="btnHelp">Допомога</span></button>
         </div>
 
@@ -165,12 +191,21 @@ body{
 
         <div class="reminder-box" id="reminderBox">
             <h3>⏰ <span data-i18n="remTitle">Мої нагадування</span></h3>
-            <div class="reminder-add">
-                <input type="time" id="remTime" class="time" value="12:00">
-                <input type="text" id="remText" placeholder="Наприклад: подзвонити мамі" maxlength="60">
-                <button onclick="addReminder()">➕ <span data-i18n="remAdd">Додати</span></button>
-            </div>
             <div class="reminder-list" id="reminderList"></div>
+            <div class="add-row">
+                <input type="time" id="remTime" value="09:00">
+                <input type="text" id="remText" placeholder="Наприклад: подзвонити мамі" maxlength="60">
+                <button onclick="addReminder()"><span data-i18n="remAdd">Додати</span></button>
+            </div>
+        </div>
+
+        <div class="notes-box" id="notesBox">
+            <h3>📝 <span data-i18n="notesTitle">Мої замітки</span></h3>
+            <div class="notes-list" id="notesList"></div>
+            <div class="add-row">
+                <input type="text" id="noteText" placeholder="Напиши замітку…" maxlength="120">
+                <button onclick="addNote()"><span data-i18n="notesAdd">Додати</span></button>
+            </div>
         </div>
 
         <div class="log-box">
@@ -219,6 +254,18 @@ const I18N = {
         placeHolder: 'Введи команду…', btnSend: '➤',
         weatherCity: 'Погода в місті {city}: {temp}°C. {advice}',
         inputCmd: 'Команда введена: {text}',
+        btnForecast: 'Прогноз', forecastTitle: 'Прогноз на {n} дні',
+        forecastText: 'Прогноз: {d1}: {t1}°C, {d2}: {t2}°C, {d3}: {t3}°C.',
+        forecastFail: 'Не вдалося отримати прогноз.',
+        sunText: 'Схід сонця: {rise}, захід: {set}.',
+        btnCalc: 'Калькулятор', calcPrompt: 'Напиши приклад, наприклад: 2+2*3',
+        calcResult: 'Відповідь: {expr} = {res}',
+        btnCoin: 'Монетка', coinHeads: 'Орел!', coinTails: 'Решка!',
+        btnJoke: 'Жарт',
+        btnNotes: 'Замітки', notesTitle: 'Мої замітки', notesAdd: 'Додати', notesEmpty: 'Заміток поки немає. Додай першу!',
+        notesPlaceholder: 'Напиши замітку…', notesSaved: 'Замітку збережено!', notesRemoved: 'Замітку видалено.',
+        noteCmd: 'Команда «замітка» — відкрий вкладку Замітки і додай нову.',
+        sunrise: 'схід', sunset: 'захід',
     },
     ru: {
         title: 'Voice Assistant', name: 'Ассистент',
@@ -254,6 +301,18 @@ const I18N = {
         placeHolder: 'Введи команду…', btnSend: '➤',
         weatherCity: 'Погода в городе {city}: {temp}°C. {advice}',
         inputCmd: 'Команда введена: {text}',
+        btnForecast: 'Прогноз', forecastTitle: 'Прогноз на {n} дней',
+        forecastText: 'Прогноз: {d1}: {t1}°C, {d2}: {t2}°C, {d3}: {t3}°C.',
+        forecastFail: 'Не удалось получить прогноз.',
+        sunText: 'Восход: {rise}, закат: {set}.',
+        btnCalc: 'Калькулятор', calcPrompt: 'Напиши пример, например: 2+2*3',
+        calcResult: 'Ответ: {expr} = {res}',
+        btnCoin: 'Монетка', coinHeads: 'Орёл!', coinTails: 'Решка!',
+        btnJoke: 'Шутка',
+        btnNotes: 'Заметки', notesTitle: 'Мои заметки', notesAdd: 'Добавить', notesEmpty: 'Заметок пока нет. Добавь первую!',
+        notesPlaceholder: 'Напиши заметку…', notesSaved: 'Заметка сохранена!', notesRemoved: 'Заметка удалена.',
+        noteCmd: 'Команда «заметка» — открой вкладку Заметки и добавь новую.',
+        sunrise: 'восход', sunset: 'закат',
     },
     en: {
         title: 'Voice Assistant', name: 'Assistant',
@@ -289,6 +348,18 @@ const I18N = {
         placeHolder: 'Type a command…', btnSend: '➤',
         weatherCity: 'Weather in {city}: {temp}°C. {advice}',
         inputCmd: 'Command entered: {text}',
+        btnForecast: 'Forecast', forecastTitle: 'Forecast for {n} days',
+        forecastText: 'Forecast: {d1}: {t1}°C, {d2}: {t2}°C, {d3}: {t3}°C.',
+        forecastFail: 'Could not get forecast.',
+        sunText: 'Sunrise: {rise}, sunset: {set}.',
+        btnCalc: 'Calculator', calcPrompt: 'Type an expression, e.g. 2+2*3',
+        calcResult: 'Answer: {expr} = {res}',
+        btnCoin: 'Coin', coinHeads: 'Heads!', coinTails: 'Tails!',
+        btnJoke: 'Joke',
+        btnNotes: 'Notes', notesTitle: 'My notes', notesAdd: 'Add', notesEmpty: 'No notes yet. Add your first!',
+        notesPlaceholder: 'Write a note…', notesSaved: 'Note saved!', notesRemoved: 'Note deleted.',
+        noteCmd: 'Command "note" — open the Notes tab and add a new one.',
+        sunrise: 'sunrise', sunset: 'sunset',
     },
     hu: {
         title: 'Voice Assistant', name: 'Asszisztens',
@@ -324,6 +395,18 @@ const I18N = {
         placeHolder: 'Írj be egy parancsot…', btnSend: '➤',
         weatherCity: 'Időjárás {city} városában: {temp}°C. {advice}',
         inputCmd: 'Parancs beírva: {text}',
+        btnForecast: 'Előrejelzés', forecastTitle: 'Előrejelzés {n} napra',
+        forecastText: 'Előrejelzés: {d1}: {t1}°C, {d2}: {t2}°C, {d3}: {t3}°C.',
+        forecastFail: 'Nem sikerült az előrejelzés lekérése.',
+        sunText: 'Napkelte: {rise}, napnyugta: {set}.',
+        btnCalc: 'Számológép', calcPrompt: 'Írj egy kifejezést, pl. 2+2*3',
+        calcResult: 'Válasz: {expr} = {res}',
+        btnCoin: 'Pénzfeldobás', coinHeads: 'Fej!', coinTails: 'Írás!',
+        btnJoke: 'Vicc',
+        btnNotes: 'Jegyzetek', notesTitle: 'Jegyzeteim', notesAdd: 'Hozzáad', notesEmpty: 'Még nincs jegyzet. Add hozzá az elsőt!',
+        notesPlaceholder: 'Írj egy jegyzetet…', notesSaved: 'Jegyzet elmentve!', notesRemoved: 'Jegyzet törölve.',
+        noteCmd: 'Parancs: „jegyzet" — nyisd meg a Jegyzetek fület és adj hozzá újat.',
+        sunrise: 'napkelte', sunset: 'napnyugta',
     },
     fr: {
         title: 'Voice Assistant', name: 'Assistant',
@@ -359,6 +442,18 @@ const I18N = {
         placeHolder: 'Tapez une commande…', btnSend: '➤',
         weatherCity: 'Météo à {city} : {temp}°C. {advice}',
         inputCmd: 'Commande saisie : {text}',
+        btnForecast: 'Prévisions', forecastTitle: 'Prévisions sur {n} jours',
+        forecastText: 'Prévisions : {d1} : {t1}°C, {d2} : {t2}°C, {d3} : {t3}°C.',
+        forecastFail: 'Impossible d\'obtenir les prévisions.',
+        sunText: 'Lever du soleil : {rise}, coucher : {set}.',
+        btnCalc: 'Calculatrice', calcPrompt: 'Écrivez une expression, ex. 2+2*3',
+        calcResult: 'Réponse : {expr} = {res}',
+        btnCoin: 'Pièce', coinHeads: 'Pile !', coinTails: 'Face !',
+        btnJoke: 'Blague',
+        btnNotes: 'Notes', notesTitle: 'Mes notes', notesAdd: 'Ajouter', notesEmpty: 'Aucune note pour l\'instant. Ajoutez la première !',
+        notesPlaceholder: 'Écrivez une note…', notesSaved: 'Note enregistrée !', notesRemoved: 'Note supprimée.',
+        noteCmd: 'Commande « note » — ouvrez l\'onglet Notes et ajoutez-en une nouvelle.',
+        sunrise: 'lever', sunset: 'coucher',
     },
 };
 
@@ -403,8 +498,10 @@ function setLang(l) {
     $('assistantStatus').textContent = t('statusReady');
     $('bubbleText').textContent = t('bubbleDefault');
     $('remText').placeholder = t('remPlaceholder');
+    $('noteText').placeholder = t('notesPlaceholder');
     $('cmdInput').placeholder = t('placeHolder');
     renderReminders();
+    renderNotes();
 }
 
 document.getElementById('langSwitch').addEventListener('click', e => {
@@ -533,8 +630,177 @@ function askCurrency() {
 }
 
 // ============================================================
-// ДАТА
+// ПРОГНОЗ НА 3 ДНІ + СОНЦЕ
 // ============================================================
+function askForecast() {
+    $('assistantStatus').textContent = t('statusThinking');
+    $('bubbleIco').textContent = '📅';
+    $('bubbleText').textContent = t('statusThinking');
+    navigator.geolocation.getCurrentPosition(async pos => {
+        try {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat +
+                '&longitude=' + lon +
+                '&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset' +
+                '&timezone=auto&forecast_days=3';
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            const d = data.daily;
+
+            // Дні тижня коротко
+            const wd = (i) => {
+                const date = new Date(d.time[i] + 'T12:00:00');
+                return date.toLocaleDateString(lang, { weekday: 'short' });
+            };
+            const dayTemp = (i) => Math.round(d.temperature_2m_max[i]) + '/' + Math.round(d.temperature_2m_min[i]);
+
+            const text = t('forecastText', {
+                d1: wd(0), t1: dayTemp(0),
+                d2: wd(1), t2: dayTemp(1),
+                d3: wd(2), t3: dayTemp(2),
+            });
+
+            // Схід/захід сонця
+            let sun = '';
+            try {
+                const rise = d.sunrise[0] ? d.sunrise[0].slice(11, 16) : '';
+                const set = d.sunset[0] ? d.sunset[0].slice(11, 16) : '';
+                if (rise && set) sun = ' ' + t('sunText', { rise, set });
+            } catch (e) { /* sun optional */ }
+
+            say(text + sun, t('logWeather'));
+        } catch (e) {
+            say(t('forecastFail'));
+        }
+    }, () => {
+        say(t('weatherLocError'));
+    }, { timeout: 10000 });
+}
+
+// ============================================================
+// КАЛЬКУЛЯТОР
+// ============================================================
+function askCalc() {
+    $('cmdInput').placeholder = t('calcPrompt');
+    $('cmdInput').focus();
+    say(t('calcPrompt'));
+}
+
+function tryCalc(text) {
+    const m = text.match(/(\d+[+\-*\/xх×÷][\d+\-*\/xх×÷. ()]+)/iu);
+    if (!m) return false;
+    let expr = m[1].replace(/x/gi, '*').replace(/х/gi, '*').replace(/×/g, '*').replace(/÷/g, '/');
+    if (!/^[0-9+\-*/(). ]+$/.test(expr)) return false;
+    try {
+        const res = Function('"use strict";return (' + expr + ')')();
+        if (typeof res === 'number' && isFinite(res)) {
+            const rounded = Math.round(res * 100) / 100;
+            say(t('calcResult', { expr: m[1].trim(), res: rounded }));
+            return true;
+        }
+    } catch (e) { /* invalid */ }
+    return false;
+}
+
+// ============================================================
+// МОНЕТКА
+// ============================================================
+function flipCoin() {
+    const r = Math.random() < 0.5;
+    say(r ? '🪙 ' + t('coinHeads') : '🪙 ' + t('coinTails'));
+}
+
+// ============================================================
+// ЖАРТИ (локальні, без API)
+// ============================================================
+const JOKES = {
+    uk: [
+        'Чому комп\'ютер пішов до лікаря? Бо він підхопив вірус!',
+        'Що каже один оселедець іншому? — Ти такий солоний!',
+        'Чому математик не ходить на пляж? Бо боїться, що його розділять на нуль.',
+        'Який улюблений танець програміста? Алгоритм!',
+    ],
+    ru: [
+        'Почему компьютер пошёл к врачу? Потому что подхватил вирус!',
+        'Что говорит одна селёдка другой? — Ты такая солёная!',
+        'Почему математик не ходит на пляж? Боится, что его разделят на ноль.',
+        'Какой любимый танец программиста? Алгоритм!',
+    ],
+    en: [
+        'Why did the computer go to the doctor? Because it caught a virus!',
+        'What do you call a fish with no eyes? A fsh!',
+        'Why do programmers prefer dark mode? Because light attracts bugs!',
+        'I told my computer I needed a break. Now it won\'t stop sending me KitKat ads.',
+    ],
+    hu: [
+        'Miért ment a számítógép orvoshoz? Mert vírust kapott!',
+        'Mit mond az egyik hering a másiknak? — De sós vagy!',
+        'Miért nem megy a matematikus a strandra? Mert fél, hogy nullával osztják el.',
+        'Mi a programozó kedvenc tánca? Az algoritmus!',
+    ],
+    fr: [
+        'Pourquoi l\'ordinateur est-il allé chez le médecin ? Parce qu\'il avait attrapé un virus !',
+        'Que dit un hareng à un autre ? — Tu es bien salé !',
+        'Pourquoi le mathématicien ne va-t-il pas à la plage ? Par peur d\'être divisé par zéro.',
+        'Quelle est la danse préférée du programmeur ? L\'algorithme !',
+    ],
+};
+
+function tellJoke() {
+    const jokes = JOKES[lang] || JOKES.en;
+    const j = jokes[Math.floor(Math.random() * jokes.length)];
+    say('😂 ' + j);
+}
+
+// ============================================================
+// ЗАМІТКИ
+// ============================================================
+let notes = [];
+try { notes = JSON.parse(localStorage.getItem('va_notes') || '[]'); } catch (e) { notes = []; }
+
+function saveNotes() {
+    try { localStorage.setItem('va_notes', JSON.stringify(notes)); } catch (e) { /* storage full */ }
+}
+
+function toggleNotes() {
+    const box = $('notesBox');
+    box.classList.toggle('show');
+    if (box.classList.contains('show')) renderNotes();
+}
+
+function addNote() {
+    const input = $('noteText');
+    const text = input.value.trim();
+    if (!text) return;
+    notes.unshift(text);
+    input.value = '';
+    saveNotes();
+    renderNotes();
+    say('📝 ' + t('notesSaved'));
+}
+
+function removeNote(i) {
+    notes.splice(i, 1);
+    saveNotes();
+    renderNotes();
+    say('🗑️ ' + t('notesRemoved'));
+}
+
+function renderNotes() {
+    const list = $('notesList');
+    if (!notes.length) {
+        list.innerHTML = '<div class="empty-rem">' + t('notesEmpty') + '</div>';
+        return;
+    }
+    list.innerHTML = notes.map((n, i) =>
+        '<div class="note-item"><span class="n-text">' +
+        n.replace(/</g, '&lt;') +
+        '</span><button class="n-del" onclick="removeNote(' + i + ')" title="×">🗑️</button></div>'
+    ).join('');
+}
+
 function askDate() {
     const now = new Date();
     const date = now.toLocaleDateString(lang, {
@@ -696,6 +962,33 @@ function handleVoiceCommand(text) {
     // Погода
     if (/(^|\s)(погод|weather|météo|időjár|време|погода)(\s|$)/iu.test(text)) {
         askWeather();
+        return;
+    }
+    // Прогноз
+    if (/(^|\s)(прогноз|forecast|prévisions|előrejelzés|погода на)(\s|$)/iu.test(text)) {
+        askForecast();
+        return;
+    }
+    // Калькулятор
+    if (tryCalc(text)) return;
+    if (/(^|\s)(калькулятор|calculator|calcul|számológép)(\s|$)/iu.test(text)) {
+        askCalc();
+        return;
+    }
+    // Монетка
+    if (/(^|\s)(монет|орёл|орел|решка|coin|piece|pénzfeldob|підкинь)(\s|$)/iu.test(text)) {
+        flipCoin();
+        return;
+    }
+    // Жарт
+    if (/(^|\s)(жарт|шутк|joke|blague|vicc|анекдот)(\s|$)/iu.test(text)) {
+        tellJoke();
+        return;
+    }
+    // Замітки
+    if (/(^|\s)(замітк|заметк|note|notes)(\s|$)/iu.test(text)) {
+        toggleNotes();
+        say(t('noteCmd'));
         return;
     }
     // Валюта
