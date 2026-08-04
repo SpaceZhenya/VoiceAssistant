@@ -307,10 +307,21 @@ const I18N = {
         weatherFetching: 'Шукаю твоє місцезнаходження…', weatherLocError: 'Не можу визначити місцезнаходження. Дозволь доступ до геолокації.',
         weatherFail: 'Не вдалося отримати погоду. Перевір інтернет.',
         weatherTemp: 'Зараз температура {temp}°C. {advice}',
-        adviceCold: 'Холодно — одягни теплу куртку!',
-        adviceCool: 'Прохолодно — візьми легку куртку.',
-        adviceWarm: 'Тепло — можна футболку.',
-        adviceHot: 'Дуже жарко — одягни щось легке, пий воду!',
+        adviceFreezing: 'Дуже холодно — пуховик, шапка і рукавиці!',
+        adviceCold: 'Холодно — тепла куртка, шапка і шарф.',
+        adviceChilly: 'Прохолодно — куртка або теплий светр.',
+        adviceCool: 'Свіжо — легка куртка чи кофта.',
+        adviceMild: 'Помірно — футболка з легкою кофтою на вечір.',
+        adviceWarm: 'Тепло — футболка, можна шорти.',
+        adviceHot: 'Жарко — легкий одяг, капелюх і вода!',
+        adviceScorching: 'Спека — лляний одяг, обов\'язково пий воду!',
+        advRain: '🌧️ Іде дощ — візьми парасольку!',
+        advSnow: '❄️ Сніг — водонепроникне взуття!',
+        advStorm: '⛈️ Гроза — краще залишись вдома!',
+        advFog: '🌫️ Туман — будь уважним на дорозі!',
+        advWind: '💨 Вітряно — візьми куртку з капюшоном!',
+        advUmbrella: '☔ Мряка — не забудь парасольку.',
+        advCloudy: '☁️ Похмуро — візьми щось із собою про всяк випадок.',
         timeNow: 'Зараз {time}.',
         hello: 'Привіт! Чим можу допомогти?',
         goodbye: 'До побачення!',
@@ -333,6 +344,7 @@ const I18N = {
         inputCmd: 'Команда введена: {text}',
         btnForecast: 'Прогноз', forecastTitle: 'Прогноз на {n} дні',
         forecastText: 'Прогноз: {d1}: {t1}°C, {d2}: {t2}°C, {d3}: {t3}°C.',
+        forecastTips: '👕 Одяг: {d1}: {a1} | {d2}: {a2} | {d3}: {a3}.',
         forecastFail: 'Не вдалося отримати прогноз.',
         sunText: 'Схід сонця: {rise}, захід: {set}.',
         btnCalc: 'Калькулятор', calcPrompt: 'Напиши приклад, наприклад: 2+2*3',
@@ -366,10 +378,21 @@ const I18N = {
         weatherFetching: 'Ищу твоё местоположение…', weatherLocError: 'Не могу определить местоположение. Разреши доступ к геолокации.',
         weatherFail: 'Не удалось получить погоду. Проверь интернет.',
         weatherTemp: 'Сейчас температура {temp}°C. {advice}',
-        adviceCold: 'Холодно — надень тёплую куртку!',
-        adviceCool: 'Прохладно — возьми лёгкую куртку.',
-        adviceWarm: 'Тепло — можно футболку.',
-        adviceHot: 'Очень жарко — надень что-то лёгкое, пей воду!',
+        adviceFreezing: 'Очень холодно — пуховик, шапка и перчатки!',
+        adviceCold: 'Холодно — тёплая куртка, шапка и шарф.',
+        adviceChilly: 'Прохладно — куртка или тёплый свитер.',
+        adviceCool: 'Свежо — лёгкая куртка или кофта.',
+        adviceMild: 'Умеренно — футболка с лёгкой кофтой на вечер.',
+        adviceWarm: 'Тепло — футболка, можно шорты.',
+        adviceHot: 'Жарко — лёгкая одежда, кепка и вода!',
+        adviceScorching: 'Жара — льняная одежда, обязательно пей воду!',
+        advRain: '🌧️ Идёт дождь — возьми зонт!',
+        advSnow: '❄️ Снег — непромокаемая обувь!',
+        advStorm: '⛈️ Гроза — лучше останься дома!',
+        advFog: '🌫️ Туман — будь внимателен на дороге!',
+        advWind: '💨 Ветрено — возьми куртку с капюшоном!',
+        advUmbrella: '☔ Моросит — не забудь зонт.',
+        advCloudy: '☁️ Пасмурно — возьми что-нибудь на всякий случай.',
         timeNow: 'Сейчас {time}.',
         hello: 'Привет! Чем могу помочь?',
         goodbye: 'До свидания!',
@@ -392,6 +415,7 @@ const I18N = {
         inputCmd: 'Команда введена: {text}',
         btnForecast: 'Прогноз', forecastTitle: 'Прогноз на {n} дней',
         forecastText: 'Прогноз: {d1}: {t1}°C, {d2}: {t2}°C, {d3}: {t3}°C.',
+        forecastTips: '👕 Одежда: {d1}: {a1} | {d2}: {a2} | {d3}: {a3}.',
         forecastFail: 'Не удалось получить прогноз.',
         sunText: 'Восход: {rise}, закат: {set}.',
         btnCalc: 'Калькулятор', calcPrompt: 'Напиши пример, например: 2+2*3',
@@ -425,10 +449,21 @@ const I18N = {
         weatherFetching: 'Finding your location…', weatherLocError: 'Cannot find location. Allow geolocation access.',
         weatherFail: 'Could not get weather. Check internet.',
         weatherTemp: 'Current temperature is {temp}°C. {advice}',
-        adviceCold: 'Cold — wear a warm jacket!',
-        adviceCool: 'Cool — take a light jacket.',
-        adviceWarm: 'Warm — a T-shirt is fine.',
-        adviceHot: 'Very hot — wear something light, drink water!',
+        adviceFreezing: 'Very cold — down jacket, hat and gloves!',
+        adviceCold: 'Cold — warm jacket, hat and scarf.',
+        adviceChilly: 'Chilly — jacket or a warm sweater.',
+        adviceCool: 'Cool — light jacket or cardigan.',
+        adviceMild: 'Mild — T-shirt with a light layer for the evening.',
+        adviceWarm: 'Warm — T-shirt, shorts are fine.',
+        adviceHot: 'Hot — light clothes, a cap and water!',
+        adviceScorching: 'Scorching — linen clothes, drink water!',
+        advRain: '🌧️ It\'s raining — take an umbrella!',
+        advSnow: '❄️ Snow — waterproof shoes!',
+        advStorm: '⛈️ Thunderstorm — better stay inside!',
+        advFog: '🌫️ Fog — be careful on the road!',
+        advWind: '💨 Windy — take a hooded jacket!',
+        advUmbrella: '☔ Drizzle — don\'t forget an umbrella.',
+        advCloudy: '☁️ Overcast — take something just in case.',
         timeNow: 'It is {time} now.',
         hello: 'Hello! How can I help?',
         goodbye: 'Goodbye!',
@@ -451,6 +486,7 @@ const I18N = {
         inputCmd: 'Command entered: {text}',
         btnForecast: 'Forecast', forecastTitle: 'Forecast for {n} days',
         forecastText: 'Forecast: {d1}: {t1}°C, {d2}: {t2}°C, {d3}: {t3}°C.',
+        forecastTips: '👕 Outfit: {d1}: {a1} | {d2}: {a2} | {d3}: {a3}.',
         forecastFail: 'Could not get forecast.',
         sunText: 'Sunrise: {rise}, sunset: {set}.',
         btnCalc: 'Calculator', calcPrompt: 'Type an expression, e.g. 2+2*3',
@@ -484,10 +520,21 @@ const I18N = {
         weatherFetching: 'Keresem a helyzeted…', weatherLocError: 'Nem találom a helyzeted. Engedélyezd a helymeghatározást.',
         weatherFail: 'Nem sikerült az időjárás lekérése. Ellenőrizd az internetet.',
         weatherTemp: 'Jelenleg {temp}°C van. {advice}',
-        adviceCold: 'Hideg van — vegyél fel meleg kabátot!',
-        adviceCool: 'Hűvös van — vigyél könnyű kabátot.',
-        adviceWarm: 'Meleg van — póló is elég.',
-        adviceHot: 'Nagyon meleg van — vegyél fel könnyű ruhát, igyál vizet!',
+        adviceFreezing: 'Nagyon hideg van — tollkabát, sapka és kesztyű!',
+        adviceCold: 'Hideg van — meleg kabát, sapka és sál.',
+        adviceChilly: 'Hűvös van — kabát vagy meleg pulóver.',
+        adviceCool: 'Friss — könnyű kabát vagy kardigán.',
+        adviceMild: 'Enyhe — póló könnyű felsővel estére.',
+        adviceWarm: 'Meleg — póló, rövidnadrág is jó.',
+        adviceHot: 'Forró — könnyű ruha, sapka és víz!',
+        adviceScorching: 'Perzselő — lenvászon ruha, igyál vizet!',
+        advRain: '🌧️ Esik az eső — vigyél esernyőt!',
+        advSnow: '❄️ Hó — vízálló cipő!',
+        advStorm: '⛈️ Zivatar — maradj inkább otthon!',
+        advFog: '🌫️ Köd — légy óvatos az úton!',
+        advWind: '💨 Szeles — vigyél kapucnis kabátot!',
+        advUmbrella: '☔ Szitálás — ne felejtsd az esernyőt.',
+        advCloudy: '☁️ Borult — vigyél valamit biztos ami biztos.',
         timeNow: 'Most {time} van.',
         hello: 'Szia! Miben segíthetek?',
         goodbye: 'Viszlát!',
@@ -510,6 +557,7 @@ const I18N = {
         inputCmd: 'Parancs beírva: {text}',
         btnForecast: 'Előrejelzés', forecastTitle: 'Előrejelzés {n} napra',
         forecastText: 'Előrejelzés: {d1}: {t1}°C, {d2}: {t2}°C, {d3}: {t3}°C.',
+        forecastTips: '👕 Ruha: {d1}: {a1} | {d2}: {a2} | {d3}: {a3}.',
         forecastFail: 'Nem sikerült az előrejelzés lekérése.',
         sunText: 'Napkelte: {rise}, napnyugta: {set}.',
         btnCalc: 'Számológép', calcPrompt: 'Írj egy kifejezést, pl. 2+2*3',
@@ -543,10 +591,21 @@ const I18N = {
         weatherFetching: 'Recherche de votre position…', weatherLocError: 'Impossible de trouver votre position. Autorisez la géolocalisation.',
         weatherFail: 'Impossible d\'obtenir la météo. Vérifiez Internet.',
         weatherTemp: 'La température actuelle est de {temp}°C. {advice}',
-        adviceCold: 'Il fait froid — mettez une veste chaude !',
-        adviceCool: 'Il fait frais — prenez une veste légère.',
-        adviceWarm: 'Il fait chaud — un t-shirt suffit.',
-        adviceHot: 'Très chaud — mettez quelque chose de léger, buvez de l\'eau !',
+        adviceFreezing: 'Très froid — doudoune, bonnet et gants !',
+        adviceCold: 'Froid — veste chaude, bonnet et écharpe.',
+        adviceChilly: 'Frais — veste ou pull chaud.',
+        adviceCool: 'Temps doux — veste légère ou cardigan.',
+        adviceMild: 'Agréable — t-shirt avec une couche légère pour le soir.',
+        adviceWarm: 'Chaud — t-shirt, short OK.',
+        adviceHot: 'Très chaud — vêtements légers, casquette et eau !',
+        adviceScorching: 'Canicule — vêtements en lin, buvez de l\'eau !',
+        advRain: '🌧️ Il pleut — prenez un parapluie !',
+        advSnow: '❄️ Neige — chaussures imperméables !',
+        advStorm: '⛈️ Orage — restez plutôt à la maison !',
+        advFog: '🌫️ Brouillard — soyez prudent sur la route !',
+        advWind: '💨 Vent — prenez une veste à capuche !',
+        advUmbrella: '☔ Bruine — n\'oubliez pas le parapluie.',
+        advCloudy: '☁️ Couvert — prenez quelque chose au cas où.',
         timeNow: 'Il est {time} maintenant.',
         hello: 'Bonjour ! Comment puis-je aider ?',
         goodbye: 'Au revoir !',
@@ -569,6 +628,7 @@ const I18N = {
         inputCmd: 'Commande saisie : {text}',
         btnForecast: 'Prévisions', forecastTitle: 'Prévisions sur {n} jours',
         forecastText: 'Prévisions : {d1} : {t1}°C, {d2} : {t2}°C, {d3} : {t3}°C.',
+        forecastTips: '👕 Tenue : {d1} : {a1} | {d2} : {a2} | {d3} : {a3}.',
         forecastFail: 'Impossible d\'obtenir les prévisions.',
         sunText: 'Lever du soleil : {rise}, coucher : {set}.',
         btnCalc: 'Calculatrice', calcPrompt: 'Écrivez une expression, ex. 2+2*3',
@@ -709,16 +769,39 @@ function askWeather() {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
             const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat +
-                        '&longitude=' + lon + '&current_weather=true';
+                        '&longitude=' + lon + '&current_weather=true&timezone=auto';
             const res = await fetch(url);
             if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
-            const temp = Math.round(data.current_weather.temperature);
+            const cur = data.current_weather;
+            const temp = Math.round(cur.temperature);
+            const code = cur.weathercode;
+            const wind = Math.round(cur.windspeed);
+
+            // Температурна порада (8 рівнів)
             let advice;
-            if (temp <= 5) advice = t('adviceCold');
+            if (temp <= -10) advice = t('adviceFreezing');
+            else if (temp <= 0) advice = t('adviceCold');
+            else if (temp <= 8) advice = t('adviceChilly');
             else if (temp <= 15) advice = t('adviceCool');
-            else if (temp <= 25) advice = t('adviceWarm');
-            else advice = t('adviceHot');
+            else if (temp <= 22) advice = t('adviceMild');
+            else if (temp <= 28) advice = t('adviceWarm');
+            else if (temp <= 35) advice = t('adviceHot');
+            else advice = t('adviceScorching');
+
+            // Погодна порада (WMO weather code)
+            let extra = '';
+            if (code >= 95) extra = t('advStorm');
+            else if ([71, 73, 75, 77, 85, 86].indexOf(code) !== -1) extra = t('advSnow');
+            else if ([61, 63, 65, 66, 67, 80, 81, 82].indexOf(code) !== -1) extra = t('advRain');
+            else if ([51, 53, 55, 56, 57].indexOf(code) !== -1) extra = t('advUmbrella');
+            else if ([45, 48].indexOf(code) !== -1) extra = t('advFog');
+            else if (code === 3) extra = t('advCloudy');
+
+            // Вітер
+            if (wind >= 35) extra = extra ? extra + ' ' + t('advWind') : t('advWind');
+
+            if (extra) advice = advice + ' ' + extra;
 
             // Назва міста через reverse geocoding (безкоштовно, без ключа)
             let city = '';
@@ -793,10 +876,28 @@ function askForecast() {
             };
             const dayTemp = (i) => Math.round(d.temperature_2m_max[i]) + '/' + Math.round(d.temperature_2m_min[i]);
 
+            // Коротка порада по одягу за макс. температурою дня
+            const dayAdvice = (i) => {
+                const tm = Math.round(d.temperature_2m_max[i]);
+                if (tm <= -10) return t('adviceFreezing');
+                if (tm <= 0) return t('adviceCold');
+                if (tm <= 8) return t('adviceChilly');
+                if (tm <= 15) return t('adviceCool');
+                if (tm <= 22) return t('adviceMild');
+                if (tm <= 28) return t('adviceWarm');
+                if (tm <= 35) return t('adviceHot');
+                return t('adviceScorching');
+            };
+
             const text = t('forecastText', {
                 d1: wd(0), t1: dayTemp(0),
                 d2: wd(1), t2: dayTemp(1),
                 d3: wd(2), t3: dayTemp(2),
+            });
+            const tips = t('forecastTips', {
+                d1: wd(0), a1: dayAdvice(0),
+                d2: wd(1), a2: dayAdvice(1),
+                d3: wd(2), a3: dayAdvice(2),
             });
 
             // Схід/захід сонця
@@ -807,7 +908,7 @@ function askForecast() {
                 if (rise && set) sun = ' ' + t('sunText', { rise, set });
             } catch (e) { /* sun optional */ }
 
-            say(text + sun, t('logWeather'));
+            say(text + '\n' + tips + sun, t('logWeather'));
         } catch (e) {
             say(t('forecastFail'));
         }
