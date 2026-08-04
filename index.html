@@ -132,6 +132,19 @@ body::after{
 }
 .cmd-input button:hover{transform:translateY(-1px);box-shadow:0 7px 18px rgba(63,107,176,0.4)}
 
+/* ===== Chips ===== */
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.chips button{
+    padding:7px 13px;border:1.5px solid #dde4f2;border-radius:20px;background:#f7f9fd;
+    cursor:pointer;font-size:12.5px;font-weight:600;font-family:inherit;color:#5a6a88;
+    transition:0.18s;display:flex;align-items:center;gap:6px;
+}
+.chips button:hover{
+    border-color:#7a9ad0;background:#eef3fc;color:#3f6bb0;transform:translateY(-1px);
+    box-shadow:0 3px 8px rgba(90,120,180,0.15);
+}
+.chips button:active{transform:translateY(0) scale(0.97)}
+
 /* ===== Reminders ===== */
 .reminder-box{margin-top:18px;border-top:2px solid #eef2f8;padding-top:18px;display:none}
 .reminder-box.show{display:block;animation:fadeIn 0.3s}
@@ -241,6 +254,17 @@ body::after{
             <button onclick="sendCommand()">➤</button>
         </div>
 
+        <div class="chips" id="chips">
+            <button onclick="runChip('weather')">🌤️ <span data-i18n="chipWeather">погода</span></button>
+            <button onclick="runChip('forecast')">📅 <span data-i18n="chipForecast">прогноз</span></button>
+            <button onclick="runChip('currency')">💱 <span data-i18n="chipCurrency">курс</span></button>
+            <button onclick="runChip('joke')">😂 <span data-i18n="chipJoke">жарт</span></button>
+            <button onclick="runChip('coin')">🪙 <span data-i18n="chipCoin">монетка</span></button>
+            <button onclick="runChip('quote')">💬 <span data-i18n="chipQuote">цитата</span></button>
+            <button onclick="runChip('timer')">⏱️ <span data-i18n="chipTimer">таймер</span></button>
+            <button onclick="runChip('help')">❓ <span data-i18n="chipHelp">допомога</span></button>
+        </div>
+
         <div class="reminder-box" id="reminderBox">
             <h3>⏰ <span data-i18n="remTitle">Мої нагадування</span></h3>
             <div class="reminder-list" id="reminderList"></div>
@@ -319,6 +343,18 @@ const I18N = {
         notesPlaceholder: 'Напиши замітку…', notesSaved: 'Замітку збережено!', notesRemoved: 'Замітку видалено.',
         noteCmd: 'Команда «замітка» — відкрий вкладку Замітки і додай нову.',
         sunrise: 'схід', sunset: 'захід',
+        greetMorning: 'Доброго ранку', greetDay: 'Доброго дня', greetEvening: 'Доброго вечора', greetNight: 'Доброї ночі',
+        helloName: '{greet}, {name}! Чим можу допомогти?',
+        helloNoName: '{greet}! Чим можу допомогти?',
+        askName: 'Зрозумів! Зберіг ім\'я: {name}. Приємно познайомитись!',
+        whoAmI: 'Я — твій голосовий помічник 🤖. Вмію: погоду, прогноз на 3 дні, валюти, калькулятор, монетку, жарти, цитати, таймер, нагадування, замітки, час і дату. Говори або пиши команди!',
+        moodGreat: 'У мене все чудово! Готовий допомогти 😊 А як твої справи?',
+        quoteText: 'Цитата: «{quote}»',
+        timerSet: 'Таймер на {n} {unit} — запущено! ⏱️',
+        timerDone: '⏰ Час вийшов! Таймер завершено.',
+        timerPrompt: 'Скажи: «таймер на 5 хвилин» або «таймер на 30 секунд»',
+        unitMin: 'хв', unitSec: 'сек',
+        chipWeather: 'погода', chipForecast: 'прогноз', chipCurrency: 'курс', chipJoke: 'жарт', chipCoin: 'монетка', chipQuote: 'цитата', chipTimer: 'таймер', chipHelp: 'допомога',
     },
     ru: {
         title: 'Voice Assistant', name: 'Ассистент',
@@ -366,6 +402,18 @@ const I18N = {
         notesPlaceholder: 'Напиши заметку…', notesSaved: 'Заметка сохранена!', notesRemoved: 'Заметка удалена.',
         noteCmd: 'Команда «заметка» — открой вкладку Заметки и добавь новую.',
         sunrise: 'восход', sunset: 'закат',
+        greetMorning: 'Доброе утро', greetDay: 'Добрый день', greetEvening: 'Добрый вечер', greetNight: 'Доброй ночи',
+        helloName: '{greet}, {name}! Чем могу помочь?',
+        helloNoName: '{greet}! Чем могу помочь?',
+        askName: 'Понял! Сохранил имя: {name}. Приятно познакомиться!',
+        whoAmI: 'Я — твой голосовой помощник 🤖. Умею: погоду, прогноз на 3 дня, валюты, калькулятор, монетку, шутки, цитаты, таймер, напоминания, заметки, время и дату. Говори или пиши команды!',
+        moodGreat: 'У меня всё отлично! Готов помочь 😊 А как твои дела?',
+        quoteText: 'Цитата: «{quote}»',
+        timerSet: 'Таймер на {n} {unit} — запущен! ⏱️',
+        timerDone: '⏰ Время вышло! Таймер завершён.',
+        timerPrompt: 'Скажи: «таймер на 5 минут» или «таймер на 30 секунд»',
+        unitMin: 'мин', unitSec: 'сек',
+        chipWeather: 'погода', chipForecast: 'прогноз', chipCurrency: 'курс', chipJoke: 'шутка', chipCoin: 'монетка', chipQuote: 'цитата', chipTimer: 'таймер', chipHelp: 'помощь',
     },
     en: {
         title: 'Voice Assistant', name: 'Assistant',
@@ -413,6 +461,18 @@ const I18N = {
         notesPlaceholder: 'Write a note…', notesSaved: 'Note saved!', notesRemoved: 'Note deleted.',
         noteCmd: 'Command "note" — open the Notes tab and add a new one.',
         sunrise: 'sunrise', sunset: 'sunset',
+        greetMorning: 'Good morning', greetDay: 'Good afternoon', greetEvening: 'Good evening', greetNight: 'Good night',
+        helloName: '{greet}, {name}! How can I help?',
+        helloNoName: '{greet}! How can I help?',
+        askName: 'Got it! Saved your name: {name}. Nice to meet you!',
+        whoAmI: 'I am your voice assistant 🤖. I can: weather, 3-day forecast, currency, calculator, coin flip, jokes, quotes, timer, reminders, notes, time and date. Just talk or type!',
+        moodGreat: 'I am doing great! Ready to help 😊 How about you?',
+        quoteText: 'Quote: "{quote}"',
+        timerSet: 'Timer set for {n} {unit} — started! ⏱️',
+        timerDone: '⏰ Time is up! Timer finished.',
+        timerPrompt: 'Say: "timer for 5 minutes" or "timer for 30 seconds"',
+        unitMin: 'min', unitSec: 'sec',
+        chipWeather: 'weather', chipForecast: 'forecast', chipCurrency: 'currency', chipJoke: 'joke', chipCoin: 'coin', chipQuote: 'quote', chipTimer: 'timer', chipHelp: 'help',
     },
     hu: {
         title: 'Voice Assistant', name: 'Asszisztens',
@@ -460,6 +520,18 @@ const I18N = {
         notesPlaceholder: 'Írj egy jegyzetet…', notesSaved: 'Jegyzet elmentve!', notesRemoved: 'Jegyzet törölve.',
         noteCmd: 'Parancs: „jegyzet" — nyisd meg a Jegyzetek fület és adj hozzá újat.',
         sunrise: 'napkelte', sunset: 'napnyugta',
+        greetMorning: 'Jó reggelt', greetDay: 'Jó napot', greetEvening: 'Jó estét', greetNight: 'Jó éjszakát',
+        helloName: '{greet}, {name}! Miben segíthetek?',
+        helloNoName: '{greet}! Miben segíthetek?',
+        askName: 'Értem! Elmentettem a neved: {name}. Örülök a találkozásnak!',
+        whoAmI: 'Hangos asszisztens vagyok 🤖. Tudok: időjárást, 3 napos előrejelzést, árfolyamot, számológépet, pénzfeldobást, vicceket, idézeteket, időzítőt, emlékeztetőket, jegyzeteket, időt és dátumot. Beszélj vagy írj!',
+        moodGreat: 'Minden remek! Készen állok segíteni 😊 És te hogy vagy?',
+        quoteText: 'Idézet: „{quote}"',
+        timerSet: 'Időzítő beállítva: {n} {unit} — elindult! ⏱️',
+        timerDone: '⏰ Az idő lejárt! Az időzítő befejeződött.',
+        timerPrompt: 'Mondd: „időzítő 5 percre" vagy „időzítő 30 másodpercre"',
+        unitMin: 'perc', unitSec: 'mp',
+        chipWeather: 'időjárás', chipForecast: 'előrejelzés', chipCurrency: 'árfolyam', chipJoke: 'vicc', chipCoin: 'pénz', chipQuote: 'idézet', chipTimer: 'időzítő', chipHelp: 'segítség',
     },
     fr: {
         title: 'Voice Assistant', name: 'Assistant',
@@ -507,6 +579,18 @@ const I18N = {
         notesPlaceholder: 'Écrivez une note…', notesSaved: 'Note enregistrée !', notesRemoved: 'Note supprimée.',
         noteCmd: 'Commande « note » — ouvrez l\'onglet Notes et ajoutez-en une nouvelle.',
         sunrise: 'lever', sunset: 'coucher',
+        greetMorning: 'Bonjour', greetDay: 'Bon après-midi', greetEvening: 'Bonsoir', greetNight: 'Bonne nuit',
+        helloName: '{greet}, {name} ! Comment puis-je aider ?',
+        helloNoName: '{greet} ! Comment puis-je aider ?',
+        askName: 'Compris ! J\'ai enregistré votre nom : {name}. Enchanté !',
+        whoAmI: 'Je suis votre assistant vocal 🤖. Je peux : météo, prévisions 3 jours, devises, calculatrice, pièce, blagues, citations, minuteur, rappels, notes, heure et date. Parlez ou écrivez !',
+        moodGreat: 'Je vais très bien ! Prêt à aider 😊 Et vous ?',
+        quoteText: 'Citation : « {quote} »',
+        timerSet: 'Minuteur réglé sur {n} {unit} — lancé ! ⏱️',
+        timerDone: '⏰ Le temps est écoulé ! Minuteur terminé.',
+        timerPrompt: 'Dites : « minuteur 5 minutes » ou « minuteur 30 secondes »',
+        unitMin: 'min', unitSec: 's',
+        chipWeather: 'météo', chipForecast: 'prévisions', chipCurrency: 'taux', chipJoke: 'blague', chipCoin: 'pièce', chipQuote: 'citation', chipTimer: 'minuteur', chipHelp: 'aide',
     },
 };
 
@@ -808,6 +892,145 @@ function tellJoke() {
 }
 
 // ============================================================
+// ПАМ'ЯТЬ ІМЕНІ КОРИСТУВАЧА
+// ============================================================
+let userName = '';
+try { userName = localStorage.getItem('va_name') || ''; } catch (e) { userName = ''; }
+
+function saveName(name) {
+    userName = name.trim().replace(/[.,!?]+$/g, '').slice(0, 20);
+    try { localStorage.setItem('va_name', userName); } catch (e) { /* storage */ }
+    say(t('askName', { name: userName }));
+    addLog('👤', userName);
+}
+
+function greet() {
+    const h = new Date().getHours();
+    let greetKey;
+    if (h >= 5 && h < 12) greetKey = 'greetMorning';
+    else if (h >= 12 && h < 18) greetKey = 'greetDay';
+    else if (h >= 18 && h < 23) greetKey = 'greetEvening';
+    else greetKey = 'greetNight';
+    const greetText = t(greetKey);
+    say(userName
+        ? t('helloName', { greet: greetText, name: userName })
+        : t('helloNoName', { greet: greetText }));
+}
+
+function trySaveName(text) {
+    // «мене звати Женя», «my name is Zhenya», «називай мене Женя»
+    const m = text.match(/(?:мене звати|меня зовут|називай мене|звати|зовут|my name is|i am|je m'appelle|appelle-moi|a nevem)\s+([a-zа-яіїєґ']+)/iu);
+    if (!m) return false;
+    const name = m[1].replace(/[.,!?]+/g, '');
+    if (name.length < 2 || name.length > 20) return false;
+    saveName(name);
+    return true;
+}
+
+// ============================================================
+// НАСТРІЙ І САМОПРЕЗЕНТАЦІЯ
+// ============================================================
+function askMood() {
+    say(t('moodGreat'));
+}
+
+function whoAmI() {
+    say(t('whoAmI'));
+    addLog('🤖', t('logTime'));
+}
+
+// ============================================================
+// ЦИТАТИ (локальні, без API)
+// ============================================================
+const QUOTES = {
+    uk: [
+        'Немає нічого неможливого — є лише брак наполегливості.',
+        'Найкращий час посадити дерево був 20 років тому. Другий найкращий — зараз.',
+        'Успіх — це здатність іти від поразки до поразки, не втрачаючи ентузіазму.',
+        'Хто хоче — шукає способи, хто не хоче — шукає причини.',
+        'Мрії збуваються тим, хто діє.',
+    ],
+    ru: [
+        'Нет ничего невозможного — есть лишь недостаток упорства.',
+        'Лучшее время посадить дерево было 20 лет назад. Второе лучшее — сейчас.',
+        'Успех — это способность идти от поражения к поражению, не теряя энтузиазма.',
+        'Кто хочет — ищет способы, кто не хочет — ищет причины.',
+        'Мечты сбываются у тех, кто действует.',
+    ],
+    en: [
+        'Nothing is impossible — the word itself says "I\'m possible".',
+        'The best time to plant a tree was 20 years ago. The second best time is now.',
+        'Success is the ability to go from failure to failure without losing enthusiasm.',
+        'Where there is a will, there is a way.',
+        'Dreams come true for those who act.',
+    ],
+    hu: [
+        'Semmi sem lehetetlen — csak kitartás hiányzik.',
+        'A legjobb időpont fát ültetni 20 éve volt. A második legjobb a most.',
+        'A siker az a képesség, hogy kudarcról kudarcra haladjunk lelkesedés nélkül.',
+        'Aki akar, keres megoldást; aki nem akar, okot keres.',
+        'Az álmok azoknak válnak valóra, akik cselekszenek.',
+    ],
+    fr: [
+        'Rien n\'est impossible, le mot lui-même dit « je suis possible » !',
+        'Le meilleur moment pour planter un arbre était il y a 20 ans. Le deuxième meilleur moment est maintenant.',
+        'Le succès, c\'est passer d\'échec en échec sans perdre son enthousiasme.',
+        'Vouloir, c\'est pouvoir.',
+        'Les rêves se réalisent pour ceux qui agissent.',
+    ],
+};
+
+function askQuote() {
+    const quotes = QUOTES[lang] || QUOTES.en;
+    const q = quotes[Math.floor(Math.random() * quotes.length)];
+    say(t('quoteText', { quote: q }));
+}
+
+// ============================================================
+// ТАЙМЕР
+// ============================================================
+let timerHandle = null;
+
+function askTimer() {
+    say(t('timerPrompt'));
+}
+
+function trySetTimer(text) {
+    // «таймер на 5 хвилин», «timer for 3 minutes», «таймер 30 секунд»
+    const m = text.match(/(\d{1,3})\s*(?:хвилин[аи]?|хв\b|минут[ыу]?|мин\b|minute|minutes|min\b|percre|perc\b|secondes?|секунд[ауы]?|сек\b|sec\b|másodpercre|mp\b)/iu);
+    if (!m) return false;
+    const n = parseInt(m[1], 10);
+    if (!n || n < 1 || n > 120) return false;
+    const isMin = /(хвилин|минут|minute|min\b|percre|perc)/iu.test(m[0]);
+    const unit = isMin ? t('unitMin') : t('unitSec');
+    const secs = isMin ? n * 60 : n;
+
+    if (timerHandle) clearTimeout(timerHandle);
+    say(t('timerSet', { n, unit }));
+    timerHandle = setTimeout(() => {
+        playAlarmSound();
+        say(t('timerDone'));
+    }, secs * 1000);
+    return true;
+}
+
+// ============================================================
+// ЧИПИ (швидкі команди)
+// ============================================================
+function runChip(cmd) {
+    switch (cmd) {
+        case 'weather': askWeather(); break;
+        case 'forecast': askForecast(); break;
+        case 'currency': askCurrency(); break;
+        case 'joke': tellJoke(); break;
+        case 'coin': flipCoin(); break;
+        case 'quote': askQuote(); break;
+        case 'timer': askTimer(); break;
+        case 'help': showHelp(); break;
+    }
+}
+
+// ============================================================
 // ЗАМІТКИ
 // ============================================================
 let notes = [];
@@ -1061,9 +1284,34 @@ function handleVoiceCommand(text) {
         askDate();
         return;
     }
+    // Ім'я користувача: «мене звати Женя», «my name is Zhenya»
+    if (trySaveName(text)) {
+        return;
+    }
+    // Таймер: «таймер на 5 хвилин», «set a timer for 3 minutes»
+    if (/(^|\s)(таймер|timer|minuteur|időzítő)(\s|$)/iu.test(text)) {
+        if (trySetTimer(text)) return;
+        askTimer();
+        return;
+    }
+    // Цитата
+    if (/(^|\s)(цитата|цитату|цитат\b|quote|citation|idézet)(\s|$)/iu.test(text) || /(^|\s)цитат[\sауеюя]/iu.test(text)) {
+        askQuote();
+        return;
+    }
+    // Хто ти / що вмієш
+    if (/(хто ти|що ти вмієш|что ты умеешь|who are you|what can you do|qui es-tu|que sais-tu|mit tudsz|kicsoda vagy|кто ты)/iu.test(text)) {
+        whoAmI();
+        return;
+    }
+    // Настрій
+    if (/(як справи|как дела|how are you|comment ça va|hogy vagy)/iu.test(text)) {
+        askMood();
+        return;
+    }
     // Вітання
     if (/(^|\s)(привіт|здравств|привет|hello|hi|bonjour|szia|sziasztok)(\s|$)/iu.test(text)) {
-        say(t('hello'));
+        greet();
         return;
     }
     // Прощання
